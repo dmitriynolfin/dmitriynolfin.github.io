@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кейс СберСпасибо · Дима Нольфин</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Manrope'], display: ['Space Grotesk'] }, colors: { primary: { 400: '#38bdf8', 500: '#0ea5e9' } } } } }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+        body { font-family: 'Manrope', sans-serif; background: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%); color: #fff; min-height: 100vh; overflow-x: hidden; }
+        .text-gradient { background: linear-gradient(135deg, #0ea5e9, #a855f7, #06b6d4); background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: grad 8s ease infinite; }
+        @keyframes grad { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        .glass { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); }
+        .reveal { opacity: 1; transform: translateY(0); transition: all 0.7s ease; }
+        body.js-ready .reveal { opacity: 0; transform: translateY(30px); }
+        body.js-ready .reveal.visible { opacity: 1; transform: translateY(0); }
+        .solution-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-out; }
+        .solution-content.expanded { max-height: 5000px; transition: max-height 0.8s ease-in; }
+        .chevron { transition: transform 0.3s ease; }
+        .chevron.rotated { transform: rotate(180deg); }
+        
+        /* Advanced Image Viewer */
+        .image-viewer {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.98); z-index: 1000; display: none;
+            justify-content: center; align-items: center; overflow: hidden; cursor: zoom-out;
+        }
+        .image-viewer.active { display: flex; }
+        .image-viewer img {
+            max-width: 90%; max-height: 90%; object-fit: contain;
+            transform: scale(1) translate(0, 0); transition: transform 0.3s ease;
+            cursor: grab; user-select: none; -webkit-user-drag: none; touch-action: none;
+        }
+        .image-viewer img.zoomed { cursor: grabbing; transition: none; }
+        .viewer-controls {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 12px; z-index: 1001; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        .viewer-controls.show { opacity: 1; pointer-events: all; }
+        .viewer-btn {
+            background: rgba(255,255,255,0.95); border: none; padding: 12px 24px; border-radius: 30px;
+            cursor: pointer; font-weight: 600; font-size: 14px; color: #000; transition: all 0.2s; backdrop-filter: blur(10px);
+        }
+        .viewer-btn:hover { background: rgba(255,255,255,1); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .viewer-hint {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.95); color: #000; padding: 12px 24px; border-radius: 30px;
+            font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+            z-index: 1001; text-align: center; backdrop-filter: blur(10px);
+        }
+        .viewer-hint.show { opacity: 1; }
+        .zoom-level {
+            position: fixed; top: 30px; right: 30px; background: rgba(255,255,255,0.9);
+            padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;
+            opacity: 0; transition: opacity 0.3s; z-index: 1001;
+        }
+        .zoom-level.show { opacity: 1; }
+    </style>
+</head>
+<body class="antialiased">
+    <nav class="fixed top-0 left-0 w-full z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="glass rounded-2xl px-6 py-3 flex items-center justify-between">
+                <a href="index.html" class="text-xl font-bold"><span class="text-gradient">Дима Нольфин · Продуктовый консалтинг</span></a>
+                <button onclick="goBack()" class="text-sm font-medium hover:text-primary-400 transition cursor-pointer bg-transparent border-none">← Назад</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Advanced Image Viewer -->
+    <div id="imageViewer" class="image-viewer">
+        <img id="viewerImage" src="" alt="Full size">
+    </div>
+    <div id="viewerHint" class="viewer-hint">
+        🔍 Колёсико — масштаб • Зажать и тянуть — перемещение • ESC — закрыть
+    </div>
+    <div id="zoomLevel" class="zoom-level">100%</div>
+    <div id="viewerControls" class="viewer-controls">
+        <button class="viewer-btn" onclick="zoomOut()">− Уменьшить</button>
+        <button class="viewer-btn" onclick="resetViewer()">↺ Сбросить</button>
+        <button class="viewer-btn" onclick="zoomIn()">+ Увеличить</button>
+        <button class="viewer-btn" onclick="closeViewer()">✕ Закрыть</button>
+    </div>
+
+    <main class="pt-32 pb-24">
+        <div class="max-w-5xl mx-auto px-6">
+            <!-- Заголовок -->
+            <div class="text-center mb-12 reveal">
+                <h1 class="font-display text-4xl md:text-6xl font-bold mb-4">Кейс: <span class="text-gradient">СберСпасибо</span></h1>
+                <p class="text-gray-400 text-lg">Задания для собеседования · Программа лояльности</p>
+            </div>
+
+            <!-- Контекст кейса -->
+            <div class="glass rounded-2xl p-6 mb-8 reveal">
+                <h3 class="text-xl font-bold mb-3">📋 Контекст</h3>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    Продуктовая задача для команды СберСпасибо. Необходимо определить метрики 
+                    для управления поверхностью программы лояльности в СберБанк Онлайн и обосновать 
+                    логику их выбора.
+                </p>
+            </div>
+
+            <!-- Список заданий -->
+            <div class="space-y-4 mb-8">
+                
+                <!-- Задание 1 -->
+                <div class="glass rounded-2xl p-6 reveal">
+                    <div class="flex items-start gap-4">
+                        <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400 font-bold text-sm">1</span>
+                        <div class="flex-grow">
+                            <h4 class="text-lg font-semibold text-white mb-2">Выбор метрик для управления программой лояльности</h4>
+                            <p class="text-gray-300 text-sm mb-3">Какие метрики ты бы выбрал для управления этой поверхностью? Аргументируй свой выбор.</p>
+                            
+                            <button onclick="toggleSolution('solution-1', this)" class="inline-flex items-center gap-2 text-primary-400 hover:text-primary-300 text-sm font-medium transition-colors cursor-pointer bg-transparent border-none">
+                                <span class="solution-btn-text">Посмотреть решение</span>
+                                <svg class="w-4 h-4 chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+
+                            <div id="solution-1" class="solution-content mt-4">
+                                <div class="pt-4 border-t border-white/10">
+                                    <div class="prose prose-invert max-w-none mb-6">
+                                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                                            Для управления поверхностью программы лояльности СберСпасибо я бы сфокусировался на метриках <strong class="text-white">четырёх разрезов</strong>: клиентский опыт, юзабилити, продуктовые метрики и метрики юнит-экономики.
+                                        </p>
+                                        
+                                        <div class="bg-white/5 rounded-xl p-4 my-6 border border-white/10">
+                                            <h5 class="text-white font-semibold mb-3">📊 1. Метрики клиентского опыта</h5>
+                                            <p class="text-gray-300 text-sm mb-3">
+                                                В данном разрезе в первую очередь внедрил бы метрику <strong class="text-primary-400">CSI (Customer Satisfaction Index)</strong> и мониторил бы её на постоянной основе (с частотностью: один раз в неделю).
+                                            </p>
+                                            <p class="text-gray-300 text-sm">
+                                                Она, как я считаю, в данном случае больше применима, чем метрика NPS, так как позволяет измерить не только общую удовлетворённость продуктом, но и захватить отдельные его составляющие.
+                                            </p>
+                                        </div>
+
+                                        <div class="bg-purple-500/10 rounded-xl p-4 my-6 border border-purple-500/30">
+                                            <h5 class="text-purple-400 font-semibold mb-3">🎨 2. Метрики юзабилити</h5>
+                                            <p class="text-gray-300 text-sm mb-3">
+                                                Что касается метрик данной группы, я бы попробовал замерять метрики <strong class="text-purple-400">UMUX</strong> и <strong class="text-purple-400">SUPR-Q</strong>.
+                                            </p>
+                                            <p class="text-gray-300 text-sm">
+                                                Почему две метрики? Есть вероятность, что метрика SUPR-Q не «взлетит» (никто не будет проходить опрос), ввиду присутствия в ней аж восьми вопросов, и тогда можно будет остановиться на метрике UMUX.
+                                            </p>
+                                        </div>
+
+                                        <div class="bg-cyan-500/10 rounded-xl p-4 my-6 border border-cyan-500/30">
+                                            <h5 class="text-cyan-400 font-semibold mb-3">📈 3. Продуктовые метрики</h5>
+                                            <p class="text-gray-300 text-sm mb-3">
+                                                Для этого разреза метрик использовал бы общепринятые метрики отслеживания активных пользователей:
+                                            </p>
+                                            <ul class="text-gray-300 text-sm space-y-2 ml-4 list-disc mb-3">
+                                                <li><strong class="text-white">WAU, MAU</strong> (DAU считаю не очень применимой для продукта метрикой)</li>
+                                                <li><strong class="text-white">Churn Rate, Retention Rate</strong></li>
+                                                <li><strong class="text-white">Коэффициент участия, коэффициент пополнения</strong></li>
+                                            </ul>
+                                            <p class="text-gray-300 text-sm">
+                                                Также использовал бы <strong class="text-cyan-400">конверсионные метрики экранов</strong> (сколько увидели Экран 1, сколько увидели Экран 2 и т.д.).
+                                            </p>
+                                        </div>
+
+                                        <div class="bg-green-500/10 rounded-xl p-4 my-6 border border-green-500/30">
+                                            <h5 class="text-green-400 font-semibold mb-3">💰 4. Метрики юнит-экономики</h5>
+                                            <p class="text-gray-300 text-sm mb-3">
+                                                В этом разрезе помимо стандартных метрик (<strong class="text-white">ARPU, ARPC, LTV</strong>) было бы интересно смотреть на метрики, которые свойственны этому продукту:
+                                            </p>
+                                            <ul class="text-gray-300 text-sm space-y-2 ml-4 list-disc">
+                                                <li>Доля транзакций по программе лояльности</li>
+                                                <li>Redemption Rate</li>
+                                                <li>Количество баллов на счетах пользователей</li>
+                                                <li>Среднее количество списаний/начислений за одну транзакцию</li>
+                                                <li>Количество партнёров</li>
+                                                <li>Средний чек</li>
+                                                <li>Количество пользователей на каждом уровне программы лояльности</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-6">
+                                        <img src="images/sberspasibo-screens.png" alt="Интерфейс СберСпасибо" class="w-full rounded-xl border border-white/10 cursor-pointer hover:opacity-80 transition-opacity" onclick="openViewer(this.src)">
+                                        <p class="text-gray-500 text-xs text-center mt-2">Интерфейс программы лояльности СберСпасибо в СберБанк Онлайн (кликните для просмотра в полном размере)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Задание 2 -->
+                <div class="glass rounded-2xl p-6 reveal">
+                    <div class="flex items-start gap-4">
+                        <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400 font-bold text-sm">2</span>
+                        <div class="flex-grow">
+                            <h4 class="text-lg font-semibold text-white mb-2">Product Vision программы лояльности СберСпасибо</h4>
+                            <p class="text-gray-300 text-sm mb-3">Составить product vision раздела программы лояльности СберСпасибо в СБОЛ в перспективе года</p>
+                            
+                            <button onclick="toggleSolution('solution-2', this)" class="inline-flex items-center gap-2 text-primary-400 hover:text-primary-300 text-sm font-medium transition-colors cursor-pointer bg-transparent border-none">
+                                <span class="solution-btn-text">Посмотреть решение</span>
+                                <svg class="w-4 h-4 chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+
+                            <div id="solution-2" class="solution-content mt-4">
+                                <div class="pt-4 border-t border-white/10">
+                                    <div class="prose prose-invert max-w-none mb-6">
+                                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                                            Для определения видения продукта я бы воспользовался <strong class="text-white">шаблоном Романа Пихлера</strong>, чтобы понять:
+                                        </p>
+                                        <ol class="text-gray-300 text-sm space-y-2 ml-4 list-decimal mb-4">
+                                            <li>Какой аудитории нужен наш продукт (программа лояльности)?</li>
+                                            <li>Какие потребности у этой аудитории?</li>
+                                            <li>Закрывает ли наш продукт потребности этой аудитории?</li>
+                                            <li>Какие выгоды получит компания от внедрения фичей, которые будут закрывать потребности этой аудитории?</li>
+                                        </ol>
+                                        
+                                        <div class="bg-white/5 rounded-xl p-4 my-6 border border-white/10">
+                                            <h5 class="text-white font-semibold mb-3">👥 Целевая аудитория</h5>
+                                            <p class="text-gray-300 text-sm mb-3">
+                                                На начальном этапе я бы рассмотрел <strong class="text-primary-400">два сегмента аудитории</strong>:
+                                            </p>
+                                            <ul class="text-gray-300 text-sm space-y-2 ml-4 list-disc">
+                                                <li><strong>Активные пользователи</strong> — те, кто уже активно пользуется программой лояльности (не менее 5 раз в месяц посещает раздел «СберСпасибо»)</li>
+                                                <li><strong>Неактивные пользователи</strong> — те, кто пользуется СБОЛом, но не активно пользуется программой лояльности</li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="bg-yellow-500/10 rounded-xl p-4 my-6 border border-yellow-500/30">
+                                            <h5 class="text-yellow-400 font-semibold mb-3">🎯 Потребности</h5>
+                                            <p class="text-gray-300 text-sm mb-3">
+                                                Потребности для каждого из двух сегментов аудитории я бы собрал посредством:
+                                            </p>
+                                            <ul class="text-gray-300 text-sm space-y-2 ml-4 list-disc">
+                                                <li>Обратной связи (отзывы в сторах, соц. сетях, обращения в КЦ, опросы в приложении)</li>
+                                                <li>Качественных исследований (глубинные интервью, юзабилити-тесты)</li>
+                                                <li>Количественных исследований</li>
+                                                <li>Конкурентного анализа (программы лояльности в банках на российском и зарубежном рынках)</li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="bg-cyan-500/10 rounded-xl p-4 my-6 border border-cyan-500/30">
+                                            <h5 class="text-cyan-400 font-semibold mb-3">📱 Product Vision для первого сегмента (активные пользователи)</h5>
+                                            <div class="bg-white/5 rounded-lg p-3 mb-3">
+                                                <p class="text-sm text-gray-300 italic">
+                                                    «Для активных пользователей программы лояльности, которые хотят получать больше бонусов, быть сильнее вовлечены в программу, <strong class="text-white">«СберСпасибо»</strong> — это сервис, про который не будут забывать и в котором можно легко найти партнёра «рядом», чтобы потратить бонусы»
+                                                </p>
+                                            </div>
+                                            <h6 class="text-white font-semibold mb-2">Ключевые фичи:</h6>
+                                            <ul class="text-gray-300 text-sm space-y-2 ml-4 list-disc">
+                                                <li>Точка входа на Главном экране</li>
+                                                <li>Гео-карта с выделенными партнёрами продукта</li>
+                                                <li>Нативная ежемесячная напоминалка с возможностью выбора повышенной категории</li>
+                                            </ul>
+                                            <h6 class="text-white font-semibold mb-2 mt-4">Бизнес-цели:</h6>
+                                            <ul class="text-gray-300 text-sm space-y-2 ml-4 list-disc">
+                                                <li>Увеличение лояльности пользователей</li>
+                                                <li>Увеличение операционного дохода</li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="bg-purple-500/10 rounded-xl p-4 my-6 border border-purple-500/30">
+                                            <h5 class="text-purple-400 font-semibold mb-3">💼 Product Vision для второго сегмента (неактивные пользователи)</h5>
+                                            <div class="bg-white/5 rounded-lg p-3 mb-3">
+                                                <p class="text-sm text-gray-300 italic">
+                                                    «Для неактивных пользователей программы лояльности, которые хотят получать бонусы за рекомендацию другу, иметь возможность покупки ценных бумаг за бонусы, <strong class="text-white">«СберСпасибо»</strong> — это сервис, который позволит новичкам и опытным инвесторам начать инвестировать в Сбере»
+                                                </p>
+                                            </div>
+                                            <h6 class="text-white font-semibold mb-2">Ключевые фичи:</h6>
+                                            <ul class="text-gray-300 text-sm space-y-2 ml-4 list-disc">
+                                                <li>Фича начисления бонусов за приведённого друга</li>
+                                                <li>Покупка ценных бумаг за бонусы Спасибо</li>
+                                            </ul>
+                                            <h6 class="text-white font-semibold mb-2 mt-4">Бизнес-цели:</h6>
+                                            <ul class="text-gray-300 text-sm space-y-2 ml-4 list-disc">
+                                                <li>Увеличение активных пользователей продукта</li>
+                                                <li>Увеличение операционного дохода</li>
+                                                <li>Увеличение дохода брокера</li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="bg-green-500/10 rounded-xl p-4 my-6 border border-green-500/30">
+                                            <h5 class="text-green-400 font-semibold mb-3">🎨 Product Vision Boards</h5>
+                                            <p class="text-gray-300 text-sm mb-4">
+                                                Ниже представлены две доски видения продукта для разных сегментов аудитории:
+                                            </p>
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <h6 class="text-cyan-400 font-semibold text-sm mb-2">Product Vision Board — ЦА1 (активные пользователи)</h6>
+                                                    <img src="images/sberspasibo-vision-board-1.png" alt="Product Vision Board для активных пользователей" class="w-full rounded-lg border border-white/10 cursor-pointer hover:opacity-80 transition-opacity" onclick="openViewer(this.src)">
+                                                </div>
+                                                <div>
+                                                    <h6 class="text-purple-400 font-semibold text-sm mb-2">Product Vision Board — ЦА2 (неактивные пользователи)</h6>
+                                                    <img src="images/sberspasibo-vision-board-2.png" alt="Product Vision Board для неактивных пользователей" class="w-full rounded-lg border border-white/10 cursor-pointer hover:opacity-80 transition-opacity" onclick="openViewer(this.src)">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white/5 rounded-xl p-4 my-6 border border-white/10">
+                                            <h5 class="text-white font-semibold mb-3">📊 Приоритизация бэклога</h5>
+                                            <p class="text-gray-300 text-sm">
+                                                Что касается приоритизации бэклога доработок, отталкивался бы от того, какая фича принесёт <strong class="text-white">бóльшую ценность пользователю</strong>, <strong class="text-white">бóльший доход</strong> с <strong class="text-white">наименьшими трудозатратами</strong>.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Кнопка назад -->
+            <div class="text-center mt-8 reveal">
+                <button onclick="goBack()" class="inline-flex items-center gap-2 glass px-8 py-4 rounded-full font-semibold hover:bg-white/15 transition-all cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Вернуться к кейсам
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Toggle Solution
+        function toggleSolution(id, btn) {
+            const content = document.getElementById(id);
+            const chevron = btn.querySelector('.chevron');
+            const btnText = btn.querySelector('.solution-btn-text');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                chevron.classList.remove('rotated');
+                btnText.textContent = 'Посмотреть решение';
+            } else {
+                content.classList.add('expanded');
+                chevron.classList.add('rotated');
+                btnText.textContent = 'Скрыть решение';
+            }
+        }
+
+        // Advanced Image Viewer with Zoom and Pan
+        let viewerState = {
+            isOpen: false, scale: 1, x: 0, y: 0, isDragging: false, startX: 0, startY: 0
+        };
+
+        function openViewer(src) {
+            const viewer = document.getElementById('imageViewer');
+            const img = document.getElementById('viewerImage');
+            const hint = document.getElementById('viewerHint');
+            const controls = document.getElementById('viewerControls');
+            const zoomLevel = document.getElementById('zoomLevel');
+            
+            img.src = src;
+            viewer.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            viewerState.isOpen = true; viewerState.scale = 1; viewerState.x = 0; viewerState.y = 0; viewerState.isDragging = false;
+            
+            updateTransform(); updateZoomLevel();
+            
+            setTimeout(() => {
+                hint.classList.add('show'); controls.classList.add('show'); zoomLevel.classList.add('show');
+                setTimeout(() => hint.classList.remove('show'), 5000);
+            }, 100);
+        }
+
+        function closeViewer() {
+            document.getElementById('imageViewer').classList.remove('active');
+            document.getElementById('viewerHint').classList.remove('show');
+            document.getElementById('viewerControls').classList.remove('show');
+            document.getElementById('zoomLevel').classList.remove('show');
+            document.body.style.overflow = '';
+            viewerState.isOpen = false;
+        }
+
+        function zoomIn() {
+            if (!viewerState.isOpen) return;
+            viewerState.scale = Math.min(viewerState.scale * 1.5, 5);
+            updateTransform(); updateZoomLevel();
+        }
+
+        function zoomOut() {
+            if (!viewerState.isOpen) return;
+            viewerState.scale = Math.max(viewerState.scale / 1.5, 1);
+            if (viewerState.scale === 1) { viewerState.x = 0; viewerState.y = 0; }
+            updateTransform(); updateZoomLevel();
+        }
+
+        function resetViewer() {
+            viewerState.scale = 1; viewerState.x = 0; viewerState.y = 0;
+            updateTransform(); updateZoomLevel();
+        }
+
+        function updateTransform() {
+            const img = document.getElementById('viewerImage');
+            img.style.transform = `scale(${viewerState.scale}) translate(${viewerState.x / viewerState.scale}px, ${viewerState.y / viewerState.scale}px)`;
+            img.classList.toggle('zoomed', viewerState.scale > 1);
+        }
+
+        function updateZoomLevel() {
+            document.getElementById('zoomLevel').textContent = Math.round(viewerState.scale * 100) + '%';
+        }
+
+        // Mouse events
+        document.getElementById('imageViewer').addEventListener('mousedown', (e) => {
+            if (e.target.id === 'imageViewer') { closeViewer(); return; }
+            if (viewerState.scale <= 1) return;
+            viewerState.isDragging = true;
+            viewerState.startX = e.clientX - viewerState.x;
+            viewerState.startY = e.clientY - viewerState.y;
+            document.getElementById('viewerImage').style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!viewerState.isDragging || !viewerState.isOpen) return;
+            e.preventDefault();
+            viewerState.x = e.clientX - viewerState.startX;
+            viewerState.y = e.clientY - viewerState.startY;
+            updateTransform();
+        });
+
+        document.addEventListener('mouseup', () => {
+            viewerState.isDragging = false;
+            const img = document.getElementById('viewerImage');
+            if (img) img.style.cursor = viewerState.scale > 1 ? 'grabbing' : 'grab';
+        });
+
+        // Wheel zoom
+        document.getElementById('imageViewer').addEventListener('wheel', (e) => {
+            if (!viewerState.isOpen) return;
+            e.preventDefault();
+            if (e.deltaY < 0) viewerState.scale = Math.min(viewerState.scale * 1.2, 5);
+            else { viewerState.scale = Math.max(viewerState.scale / 1.2, 1); if (viewerState.scale === 1) { viewerState.x = 0; viewerState.y = 0; } }
+            updateTransform(); updateZoomLevel();
+        }, { passive: false });
+
+        // Touch events
+        let touchStartDist = 0, touchStartScale = 1;
+        document.getElementById('imageViewer').addEventListener('touchstart', (e) => {
+            if (e.target.id === 'imageViewer') { closeViewer(); return; }
+            if (e.touches.length === 1) {
+                viewerState.isDragging = true; viewerState.startX = e.touches[0].clientX - viewerState.x; viewerState.startY = e.touches[0].clientY - viewerState.y;
+            } else if (e.touches.length === 2) {
+                viewerState.isDragging = false;
+                touchStartDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+                touchStartScale = viewerState.scale;
+            }
+        });
+        document.getElementById('imageViewer').addEventListener('touchmove', (e) => {
+            if (!viewerState.isOpen) return;
+            e.preventDefault();
+            if (e.touches.length === 1 && viewerState.isDragging) {
+                viewerState.x = e.touches[0].clientX - viewerState.startX; viewerState.y = e.touches[0].clientY - viewerState.startY;
+                updateTransform();
+            } else if (e.touches.length === 2) {
+                const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+                viewerState.scale = Math.min(Math.max(touchStartScale * (dist / touchStartDist), 1), 5);
+                updateTransform(); updateZoomLevel();
+            }
+        }, { passive: false });
+        document.getElementById('imageViewer').addEventListener('touchend', () => { viewerState.isDragging = false; });
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (!viewerState.isOpen) return;
+            if (e.key === 'Escape') closeViewer();
+            if (e.key === '+' || e.key === '=') zoomIn();
+            if (e.key === '-') zoomOut();
+            if (e.key === '0') resetViewer();
+        });
+
+        // Функция возврата на главную с сохранением позиции
+        function goBack() {
+            const referrer = document.referrer;
+            let targetHash = 'cases'; // по умолчанию — секция кейсов
+            
+            // Извлекаем якорь из URL, с которого перешли
+            if (referrer && referrer.includes('#')) {
+                const hash = referrer.split('#')[1]?.split('?')[0];
+                if (hash) targetHash = hash;
+            }
+            
+            // Сохраняем в sessionStorage и переходим
+            sessionStorage.setItem('scrollToSection', targetHash);
+            window.location.href = 'index.html';
+        }
+
+        // Плавный возврат к секции без видимого скачка
+        (function() {
+            const targetSection = sessionStorage.getItem('scrollToSection');
+            if (!targetSection) return;
+            
+            sessionStorage.removeItem('scrollToSection');
+            const target = document.getElementById(targetSection);
+            if (!target) return;
+            
+            // 1. Временно отключаем плавный скролл в CSS
+            const html = document.documentElement;
+            const originalBehavior = html.style.scrollBehavior;
+            html.style.scrollBehavior = 'auto';
+            
+            // 2. Ждём полной загрузки всех ресурсов + небольшой буфер
+            function doScroll() {
+                const offset = 100; // высота фиксированной шапки
+                const rect = target.getBoundingClientRect();
+                const offsetPosition = window.pageYOffset + rect.top - offset;
+                
+                // 3. Мгновенный скролл (без анимации)
+                window.scrollTo(0, offsetPosition);
+                
+                // 4. Возвращаем плавный скролл обратно
+                setTimeout(() => {
+                    html.style.scrollBehavior = originalBehavior || 'smooth';
+                }, 50);
+            }
+            
+            // Если страница уже загружена — скроллим сразу
+            if (document.readyState === 'complete') {
+                setTimeout(doScroll, 50);
+            } else {
+                window.addEventListener('load', () => setTimeout(doScroll, 100));
+            }
+        })();
+    </script>
+</body>
+</html>

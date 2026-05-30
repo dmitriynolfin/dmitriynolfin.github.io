@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hookah lounge in Dubai · Дима Нольфин</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Manrope'], display: ['Space Grotesk'] }, colors: { primary: { 400: '#38bdf8', 500: '#0ea5e9' } } } } }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+        body { font-family: 'Manrope', sans-serif; background: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%); color: #fff; min-height: 100vh; overflow-x: hidden; }
+        .text-gradient { background: linear-gradient(135deg, #0ea5e9, #a855f7, #06b6d4); background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: grad 8s ease infinite; }
+        @keyframes grad { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        .glass { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); }
+        .reveal { opacity: 1; transform: translateY(0); transition: all 0.7s ease; }
+        body.js-ready .reveal { opacity: 0; transform: translateY(30px); }
+        body.js-ready .reveal.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="antialiased">
+    <nav class="fixed top-0 left-0 w-full z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="glass rounded-2xl px-6 py-3 flex items-center justify-between">
+                <a href="index.html" class="text-xl font-bold"><span class="text-gradient">Дима Нольфин · Продуктовый консалтинг</span></a>
+                <button onclick="goBack()" class="text-sm font-medium hover:text-primary-400 transition cursor-pointer bg-transparent border-none">← Назад</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-24">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-center mb-12 reveal">
+                <h1 class="font-display text-4xl md:text-6xl font-bold mb-4">Pet-проект - Hookah lounge in <span class="text-gradient">Dubai</span></h1>
+            </div>
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="glass rounded-2xl p-6 reveal">
+                    <h3 class="text-xl font-bold mb-3">🎯 Цель</h3>
+                    <p class="text-gray-300 text-sm">Создать премиальный кальянный лаундж для экспатов и туристов в Дубае, творить, зарабатывать</p>
+                </div>
+                <div class="glass rounded-2xl p-6 reveal">
+                    <h3 class="text-xl font-bold mb-3">👤 Что делал именно я?</h3>
+                    <ul class="space-y-3 text-sm text-gray-300 mb-4">
+                        <li class="flex items-start gap-2"><span class="text-primary-400 mt-1 flex-shrink-0">•</span><span>Подготовил драфт-описание проекта <a href="https://docs.google.com/presentation/d/1klLiDf1Mvza5gQUPLvHEviGdieLndSP-a9ldspfen6I/edit?usp=sharing" target="_blank" class="text-primary-400 hover:text-primary-300 underline decoration-dotted">(презентация)</a></span></li>
+                        <li class="flex items-start gap-2"><span class="text-primary-400 mt-1 flex-shrink-0">•</span><span>Собрал финансовую модель проекта <a href="https://docs.google.com/spreadsheets/d/1SWAc3ymlbLjrYv9UJ18qJ6QuokecmdC8/edit?usp=sharing&ouid=118024777015069124230&rtpof=true&sd=true" target="_blank" class="text-primary-400 hover:text-primary-300 underline decoration-dotted">(таблица)</a></span></li>
+                        <li class="flex items-start gap-2"><span class="text-primary-400 mt-1 flex-shrink-0">•</span><span>Провел исследование нэйминга <a href="https://drive.google.com/file/d/1OPU7VnZkFkc3GbbxvICtJxmGG0qtvMxk/view?usp=sharing" target="_blank" class="text-primary-400 hover:text-primary-300 underline decoration-dotted">(презентация)</a></span></li>
+                        <li class="flex items-start gap-2"><span class="text-primary-400 mt-1 flex-shrink-0">•</span><span>Собрал гайдлайн проекта <a href="https://docs.google.com/presentation/d/17wVZh6edNeAlr-u-dt0C7pQsrmxgovp7bYvZR2FL13c/edit?usp=sharing" target="_blank" class="text-primary-400 hover:text-primary-300 underline decoration-dotted">(презентация)</a></span></li>
+                    </ul>
+                    <p class="text-gray-400 text-sm leading-relaxed">А также: разузнал требования к помещениям, продумал УТП, варианты маркетинговых коммуникаций, провел кучу созвонов с вендорами CRM-систем, ГИС-систем, почти открыл компанию в DED, банковский счет в First Abu Dhabi Bank.</p>
+                    <p class="text-gray-500 text-sm mt-3 italic">Все созвоны, встречи фиксировал под запись, но вам, пожалуй, если захотите, покажу лично 🤓</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Функция возврата на главную с сохранением позиции
+        function goBack() {
+            const referrer = document.referrer;
+            let targetHash = 'work'; // по умолчанию — секция Pet-проекты
+            
+            // Извлекаем якорь из URL, с которого перешли
+            if (referrer && referrer.includes('#')) {
+                const hash = referrer.split('#')[1]?.split('?')[0];
+                if (hash) targetHash = hash;
+            }
+            
+            // Сохраняем в sessionStorage и переходим
+            sessionStorage.setItem('scrollToSection', targetHash);
+            window.location.href = 'index.html';
+        }
+
+        // Анимация при скролле
+        document.body.classList.add('js-ready');
+        const reveals = document.querySelectorAll('.reveal');
+        const checkReveal = () => reveals.forEach(el => { if(el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('visible'); });
+        window.addEventListener('scroll', checkReveal);
+        window.addEventListener('load', checkReveal);
+    </script>
+</body>
+</html>

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дима Нольфин · Продуктовый консалтинг</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Manrope', 'sans-serif'], display: ['Space Grotesk', 'sans-serif'] },
+                    colors: { primary: { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' } },
+                    animation: { 'float': 'float 6s ease-in-out infinite', 'gradient-shift': 'gradientShift 8s ease infinite' },
+                    keyframes: {
+                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-20px)' } },
+                        gradientShift: { '0%, 100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #0ea5e9, #a855f7, #06b6d4);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 8s ease infinite;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .reveal { opacity: 1; transform: translateY(0); transition: all 0.7s ease; }
+        body.js-ready .reveal { opacity: 0; transform: translateY(30px); }
+        body.js-ready .reveal.visible { opacity: 1; transform: translateY(0); }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #0ea5e9, #a855f7); border-radius: 10px; }
+        
+        .nav-link { position: relative; transition: color 0.3s; }
+        .nav-link:hover { color: #0ea5e9; }
+        .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: linear-gradient(90deg, #0ea5e9, #a855f7); transition: width 0.3s; }
+        .nav-link:hover::after { width: 100%; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="fixed top-0 left-0 w-full z-50 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="glass rounded-2xl px-6 py-3 flex items-center justify-between">
+                <a href="#" class="text-xl font-bold font-display"><span class="text-gradient">Дима Нольфин · Продуктовый консалтинг</span></a>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#about" class="nav-link text-sm font-medium">Обо мне</a>
+                    <a href="#services" class="nav-link text-sm font-medium">Услуги</a>
+                    <a href="#pricing" class="nav-link text-sm font-medium">Форматы</a>
+                    <a href="#work" class="nav-link text-sm font-medium">Pet-проекты</a>
+                    <a href="#cases" class="nav-link text-sm font-medium">Кейсы</a>
+                    <a href="#contact" class="nav-link text-sm font-medium">Контакты</a>
+                </div>
+                <button class="md:hidden text-2xl" id="menuBtn">☰</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="mobileMenu" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-40 hidden flex-col items-center justify-center gap-8 text-2xl">
+        <a href="#about" class="hover:text-primary-400 transition">Обо мне</a>
+        <a href="#services" class="hover:text-primary-400 transition">Услуги</a>
+        <a href="#pricing" class="hover:text-primary-400 transition">Форматы</a>
+        <a href="#work" class="hover:text-primary-400 transition">Pet-проекты</a>
+        <a href="#cases" class="hover:text-primary-400 transition">Кейсы</a>
+        <a href="#contact" class="hover:text-primary-400 transition">Контакты</a>
+    </div>
+
+    <main>
+        <section id="home" class="min-h-screen flex items-center relative pt-28 md:pt-20 overflow-hidden">
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="absolute -top-40 -right-40 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl animate-float"></div>
+                <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-float" style="animation-delay: 1.5s;"></div>
+            </div>
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-8">
+                        <div class="inline-flex items-center gap-3 glass px-4 py-2 rounded-full reveal">
+                            <span class="relative w-4 h-4"><span class="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-75"></span><span class="relative w-full h-full bg-green-400 rounded-full shadow-lg shadow-green-400/60"></span></span>
+                            <span class="text-sm font-medium">Доступен для проектов</span>
+                        </div>
+                        <h1 class="font-display text-5xl md:text-7xl font-bold leading-tight reveal">Продуктовый менеджмент:<br><span class="text-gradient">от стратегии до тактики</span><br></h1>
+                        <p class="text-lg text-gray-300 max-w-xl leading-relaxed reveal">Нахожу ценность в продукте/сегменте, формирую продуктовое видение, нащупываю product-market fit, считаю эффективность. Консультация любой роли, кто заинтересован в развитии продуктов: от студента до C-level.</p>
+                        <div class="flex flex-wrap gap-4 reveal">
+                            <a href="#work" class="bg-white text-gray-900 px-6 py-3 rounded-full font-semibold hover:bg-primary-400 hover:text-white transition-all transform hover:-translate-y-1 text-sm">Pet-проекты →</a>
+                            <a href="files/cv.pdf" target="_blank" class="glass px-6 py-3 rounded-full font-semibold hover:bg-white/15 transition text-sm flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                Смотреть CV
+                            </a>
+                            <a href="#contact" class="glass px-6 py-3 rounded-full font-semibold hover:bg-white/15 transition text-sm">Обсудить проект</a>
+                        </div>
+                        <div class="flex gap-12 pt-2 reveal">
+                            <div class="text-left"><div class="text-3xl md:text-4xl font-bold text-gradient">15+</div><div class="text-sm text-gray-400">проектов</div></div>
+                            <div class="text-left"><div class="text-3xl md:text-4xl font-bold text-gradient">10+</div><div class="text-sm text-gray-400">лет опыта</div></div>
+                        </div>
+                    </div>
+                    <div class="hidden lg:block reveal">
+                        <div class="relative aspect-square flex items-center justify-center">
+                            <div class="absolute inset-0 flex items-center justify-center"><div class="w-64 h-64 rounded-full bg-gradient-to-br from-primary-500/20 to-purple-500/20 animate-pulse"></div></div>
+                            <div class="relative z-10">
+                                <div class="w-64 h-64 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl">
+                                    <img src="images/photo.PNG" alt="Дима Нольфин" class="w-full h-full object-cover">
+                                </div>
+                                <div class="absolute -top-4 -right-4 w-16 h-16 glass rounded-full flex items-center justify-center text-2xl animate-float">⚡</div>
+                                <div class="absolute -bottom-4 -left-4 w-16 h-16 glass rounded-full flex items-center justify-center text-2xl animate-float" style="animation-delay: 1s;">🧠</div>
+                                <div class="absolute -top-5 -left-1 w-16 h-16 glass rounded-full flex items-center justify-center text-2xl animate-float" style="animation-delay: 1.5s;">📊</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="py-24 relative">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="max-w-3xl mx-auto reveal">
+                    <span class="text-green-400 font-mono text-sm font-semibold tracking-wider">ОБО МНЕ</span>
+                    <h2 class="font-display text-4xl md:text-6xl font-bold mt-4 mb-8">Продукты — это <span class="text-gradient">люди</span></h2>
+                    <div class="space-y-4 text-gray-300 leading-relaxed text-lg">
+                        <p>Привет, я Дима. Продуктовый менеджер с 10-летним опытом. Верю, что лучшие продукты рождаются на стыке данных, интуиции и эмпатии.</p>
+                        <p>Работал в консалтинге (KPMG), работал в банкинге (Home Credit Bank, Сбер, Газпромбанк), работаю в Альфа-Банке.</p>
+                        <p class="font-semibold text-white">Подход: гипотезы → данные → решения → результат.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section - отступ уменьшен в 2 раза -->
+        <section id="services" class="py-12 relative">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-8 reveal">
+                    <span class="text-cyan-400 font-mono text-sm font-semibold tracking-wider">ЭКСПЕРТИЗА</span>
+                    <h2 class="font-display text-4xl md:text-6xl font-bold mt-4">Что я <span class="text-gradient">предлагаю</span></h2>
+                </div>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="glass rounded-2xl p-8 text-center hover:transform hover:-translate-y-2 transition-all reveal h-full flex flex-col">
+                        <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary-500 to-purple-500 flex items-center justify-center text-3xl flex-shrink-0">🎯</div>
+                        <h3 class="text-xl font-bold mb-3">Продуктовая стратегия</h3>
+                        <div class="text-left pt-6 border-t border-white/10">
+                            <p class="font-medium mb-3 text-sm text-white">Я могу помочь:</p>
+                            <ul class="space-y-2 text-sm text-gray-400 list-disc list-inside marker:text-primary-400">
+                                <li>ответить на вопросы: «Зачем наш продукт нужен клиентам? Зачем наш продукт нужен нам?»</li>
+                                <li>провести конкурентный анализ, анализ рынка</li>
+                                <li>сформулировать и задизайнить А/Б-тест, пилот, гроухак-тест, цифры которых лягут в основу стратегии</li>
+                                <li>собрать финансовые модели под фичи, с помощью которых приоритизируем бэклог, построим дорожную карту</li>
+                                <li>построить воронки для каждого канала продаж</li>
+                                <li>обосновать планы продаж, мотивационные планы</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="glass rounded-2xl p-8 text-center hover:transform hover:-translate-y-2 transition-all reveal h-full flex flex-col">
+                        <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-cyan-500 to-green-500 flex items-center justify-center text-3xl flex-shrink-0">📈</div>
+                        <h3 class="text-xl font-bold mb-3">Юнит-экономика</h3>
+                        <div class="text-left pt-6 border-t border-white/10">
+                            <p class="font-medium mb-3 text-sm text-white">Я могу помочь:</p>
+                            <ul class="space-y-2 text-sm text-gray-400 list-disc list-inside marker:text-cyan-400">
+                                <li>рассчитать юнит-экономику: CAC, LTV, Payback, ARPU, маржинальность</li>
+                                <li>провести когортный анализ и оценить retention по сегментам</li>
+                                <li>построить воронку конверсий и найти «узкие места» в продукте</li>
+                                <li>оценить экономику фичи до запуска: прогноз эффекта и окупаемости</li>
+                                <li>подготовить дашборд метрик для принятия решений на основе данных</li>
+                                <li>связать продуктовые гипотезы с финансовыми результатами</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="glass rounded-2xl p-8 text-center hover:transform hover:-translate-y-2 transition-all reveal h-full flex flex-col">
+                        <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl flex-shrink-0">🧭</div>
+                        <h3 class="text-xl font-bold mb-3">Консалтинг</h3>
+                        <div class="text-left pt-6 border-t border-white/10">
+                            <p class="font-medium mb-3 text-sm text-white">Я могу помочь:</p>
+                            <ul class="space-y-2 text-sm text-gray-400 list-disc list-inside marker:text-purple-400">
+                                <li>перейти от хаоса к системе: настроить процессы, выделить метрики для мониторинга, обозначить роли</li>
+                                <li>составить профиль CPO/продакта, помочь с первичным собеседованием кандидатов</li>
+                                <li>провести стратегическую сессию: где сэкономить, а где инвестировать</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section - отступ уменьшен в 2 раза -->
+        <section id="pricing" class="py-12 relative bg-gradient-to-b from-white/5 to-transparent">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-8 reveal">
+                    <span class="text-pink-400 font-mono text-sm font-semibold tracking-wider">ФОРМАТЫ РАБОТЫ</span>
+                    <h2 class="font-display text-4xl md:text-6xl font-bold mt-4">Выберите <span class="text-gradient">подходящий формат</span></h2>
+                </div>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="glass rounded-2xl p-8 reveal hover:transform hover:-translate-y-2 transition-all duration-300 flex flex-col">
+                        <div class="mb-2"><span class="text-5xl font-bold text-white/20">01</span></div>
+                        <h3 class="text-2xl font-bold text-white mb-3">КОНСУЛЬТАЦИЯ</h3>
+                        <div class="mb-3"><span class="text-4xl font-bold text-white">15 000 ₽</span></div>
+                        <p class="text-gray-400 text-sm mb-6">1,5 часа онлайн в зуме</p>
+                        <ul class="space-y-3 text-sm text-gray-300 mb-8 flex-grow">
+                            <li class="flex items-start gap-2"><span class="text-pink-400 mt-1">•</span><span>После встречи присылаю саммари и запись, плюс доп. материалы, которые будем обсуждать на консультации</span></li>
+                            <li class="flex items-start gap-2"><span class="text-pink-400 mt-1">•</span><span>До встречи вы описываете свой запрос, чтобы я мог подготовиться, а вы — сформулировать, что же вам нужно</span></li>
+                            <li class="flex items-start gap-2"><span class="text-pink-400 mt-1">•</span><span>Не любой запрос подходит под формат консультации (я вам про это скажу заранее, прочитав анкету)</span></li>
+                            <li class="flex items-start gap-2"><span class="text-pink-400 mt-1">•</span><span>Пример: «как нам сформулировать продуктовую стратегию?» — ок, «сформулируй нам продуктовую стратегию во время консультации» — не подойдет</span></li>
+                        </ul>
+                        <a href="#contact" class="w-full block bg-white text-gray-900 text-center py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all transform hover:scale-[1.02] mt-auto">Обсудить</a>
+                    </div>
+                    <div class="glass rounded-2xl p-8 reveal hover:transform hover:-translate-y-2 transition-all duration-300 flex flex-col">
+                        <div class="mb-2"><span class="text-5xl font-bold text-white/20">02</span></div>
+                        <h3 class="text-2xl font-bold text-white mb-3">FRACTIONAL CPO</h3>
+                        <div class="mb-3"><span class="text-4xl font-bold text-white">100 000 ₽/мес</span></div>
+                        <p class="text-gray-400 text-sm mb-6">10 созвонов по 1,5 часа в зуме</p>
+                        <ul class="space-y-3 text-sm text-gray-300 mb-8 flex-grow">
+                            <li class="flex items-start gap-2"><span class="text-pink-400 mt-1">•</span><span>Зачем такой формат: вы хотите, чтобы я регулярно помогал вам с вашими задачами и помнил про ваш проект и контекст</span></li>
+                            <li class="flex items-start gap-2"><span class="text-pink-400 mt-1">•</span><span>Такой формат работы не предполагает, что я ответственен за внедрение: я предлагаю идеи, ставим задачи для команды, даю обратную связь по старым задачам и идеям, но ваши сотрудники — это ваши сотрудники</span></li>
+                            <li class="flex items-start gap-2"><span class="text-pink-400 mt-1">•</span><span>В чем плюсы: я — не ваш сотрудник, у меня нет задачи вам долгосрочно нравиться, поэтому я не буду вам врать :)</span></li>
+                            <li class="flex items-start gap-2"><span class="text-pink-400 mt-1">•</span><span>Оффлайн присутствие обговаривается отдельно</span></li>
+                        </ul>
+                        <a href="#contact" class="w-full block bg-white text-gray-900 text-center py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all transform hover:scale-[1.02] mt-auto">Обсудить</a>
+                    </div>
+                    <div class="glass rounded-2xl p-8 reveal hover:transform hover:-translate-y-2 transition-all duration-300 flex flex-col">
+                        <div class="mb-2"><span class="text-5xl font-bold text-white/20">03</span></div>
+                        <h3 class="text-2xl font-bold text-white mb-3">СТРАТЕГИЯ</h3>
+                        <div class="mb-3"><span class="text-4xl font-bold text-white">от 500 000 ₽</span></div>
+                        <p class="text-gray-400 text-sm mb-6">от 6 недель</p>
+                        <ul class="space-y-3 text-sm text-gray-300 mb-8 flex-grow">
+                            <li class="flex items-start gap-2"><span class="text-pink-400 mt-1">•</span><span>Я сделаю полноценную разработку продуктовой стратегии для вашего продукта. Для этого проведу анализ текущего состояния и рынка, покажу конкурентов, подсвечу сильные и слабые стороны как в продукте, так и в компании (команда, технологии, маркетинг и тд). Поговорю с ключевыми стейкхолдерами внутри компании/команды.</span></li>
+                            <li class="flex items-start gap-2"><span class="text-pink-400 mt-1">•</span><span>Одна из частей стратегии — дорожная карта с отприоритизированными крупноблочными задачами</span></li>
+                            <li class="flex items-start gap-2"><span class="text-pink-400 mt-1">•</span><span>Важно: если для стратегии нам нужно будет провести масштабное интервьюирование пользователей (это частая история в b2c), а вы такие исследования не проводили, то его сроки и стоимость обговариваются отдельно.</span></li>
+                        </ul>
+                        <a href="#contact" class="w-full block bg-white text-gray-900 text-center py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all transform hover:scale-[1.02] mt-auto">Обсудить</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pet Projects Section - отступ уменьшен в 2 раза -->
+        <section id="work" class="py-8 relative">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-6 reveal">
+                    <span class="text-primary-400 font-mono text-sm font-semibold tracking-wider">ПОРТФОЛИО</span>
+                    <h2 class="font-display text-4xl md:text-5xl font-bold mt-3">Pet-<span class="text-gradient">проекты</span></h2>
+                </div>
+                <div class="grid md:grid-cols-2 gap-3">
+                    <!-- Hookah lounge -->
+                    <div id="project-hookah" class="glass rounded-2xl overflow-hidden hover:transform hover:-translate-y-1 transition-all duration-300 reveal flex flex-col">
+                        <div class="aspect-[3/2] relative flex items-center justify-center overflow-hidden">
+                            <img src="images/shishadacha.png" alt="Hookah lounge in Dubai" class="w-full h-full object-cover blur-[2px] brightness-75" loading="lazy">
+                            <div class="absolute inset-0 bg-black/40"></div>
+                        </div>
+                        <div class="p-3 flex-grow flex flex-col">
+                            <h3 class="text-xl font-bold mb-1">Hookah lounge in Dubai</h3>
+                            <p class="text-gray-400 text-sm mb-2 flex-grow">В 2025 году мы с соинвестором хотели обзавестись кальянным лаунджем в Дубай. Ничего не вышло (не договорились с инвестором), но проект, оформленный руками вашего покорного слуги, остался :)</p>
+                            <a href="hookah-details.html?project=hookah" class="w-full block text-white text-center py-1.5 rounded-full text-sm font-medium hover:text-primary-400 transition-colors">
+                                Посмотреть детали →
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Hedonism Dispatch -->
+                    <div id="project-hedonism" class="glass rounded-2xl overflow-hidden hover:transform hover:-translate-y-1 transition-all duration-300 reveal flex flex-col">
+                        <div class="aspect-[3/2] relative flex items-center justify-center overflow-hidden">
+                            <img src="images/hedonism.png" alt="Hedonism Dispatch" class="w-full h-full object-cover blur-[2px] brightness-75" loading="lazy">
+                            <div class="absolute inset-0 bg-black/40"></div>
+                        </div>
+                        <div class="p-3 flex-grow flex flex-col">
+                            <h3 class="text-xl font-bold mb-1">Hedonism Dispatch <span class="text-gray-400 font-normal text-base">(детище жены)</span></h3>
+                            <p class="text-gray-400 text-sm mb-2 flex-grow">Доставка боксов с готовой любимой едой исторических персон (Николай 2, Чайковский, Пушкин, Достоевский). Этот проект, что называется, для души и в свободное от работы время :) Жена очень любит готовит, но когда идея захватит рынок, можно погрузиться в этот проект с головой!</p>
+                            <a href="hedonism-dispatch.html?project=hedonism" class="w-full block text-white text-center py-1.5 rounded-full text-sm font-medium hover:text-primary-400 transition-colors">
+                                Посмотреть детали →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Training Cases Section - отступ уменьшен в 1.5 раза -->
+        <section id="cases" class="py-10 relative">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-6 reveal">
+                    <span class="text-pink-400 font-mono text-sm font-semibold tracking-wider">ПРАКТИКА</span>
+                    <h2 class="font-display text-4xl md:text-5xl font-bold mt-3">
+                        Тренировочные <span class="text-gradient">кейсы</span>
+                    </h2>
+                    <p class="text-gray-400 mt-3 max-w-2xl mx-auto text-sm">
+                        Есть у меня особая тяга к решению всяких кейсов :) Порой кейсы дают на собеседованиях, порой я их где-то подслушиваю и берусь решить. Ниже несколько кейсов и решения к ним, чтобы было понятно, как я мыслю.
+                    </p>
+                </div>
+
+                <!-- Убран max-w-5xl, чтобы карточки растягивались на всю ширину как Pet-проекты -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Кейс 1: ЦТ (2021) -->
+                    <div class="glass rounded-2xl p-4 reveal flex flex-col justify-between hover:transform hover:-translate-y-1 transition-all">
+                        <div>
+                            <div class="flex gap-2 mb-2">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-primary-500/30 text-white font-semibold">2021</span>
+                            </div>
+                            <h3 class="text-base font-bold text-white mb-1.5">Мобильное приложение "Наш ребенок"</h3>
+                            <p class="text-gray-400 text-xs mb-3">Ценностное предложение, продуктовое решение, исследование</p>
+                        </div>
+                        <a href="case-ct.html" class="w-full block text-white text-center py-2 rounded-full text-xs font-medium hover:text-primary-400 transition-colors border border-white/10 hover:border-primary-400/50">
+                            Посмотреть кейс →
+                        </a>
+                    </div>
+
+                    <!-- Кейс 2: СберСпасибо (2022) -->
+                    <div class="glass rounded-2xl p-4 reveal flex flex-col justify-between hover:transform hover:-translate-y-1 transition-all">
+                        <div>
+                            <div class="flex gap-2 mb-2">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-primary-500/30 text-white font-semibold">2022</span>
+                            </div>
+                            <h3 class="text-base font-bold text-white mb-1.5">Программа лояльности СберСпасибо</h3>
+                            <p class="text-gray-400 text-xs mb-3">Метрики для управления поверхностью программы лояльности в СберБанк Онлайн</p>
+                        </div>
+                        <a href="case-sberspasibo.html" class="w-full block text-white text-center py-2 rounded-full text-xs font-medium hover:text-primary-400 transition-colors border border-white/10 hover:border-primary-400/50">
+                            Посмотреть кейс →
+                        </a>
+                    </div>
+
+                    <!-- Кейс 3: Сбер PFM (2022) -->
+                    <div class="glass rounded-2xl p-4 reveal flex flex-col justify-between hover:transform hover:-translate-y-1 transition-all">
+                        <div>
+                            <div class="flex gap-2 mb-2">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-primary-500/30 text-white font-semibold">2022</span>
+                            </div>
+                            <h3 class="text-base font-bold text-white mb-1.5">Фича для B2C-продукта</h3>
+                            <p class="text-gray-400 text-xs mb-3">Исследование, прототип, метрики</p>
+                        </div>
+                        <a href="case-sber-pfm.html" class="w-full block text-white text-center py-2 rounded-full text-xs font-medium hover:text-primary-400 transition-colors border border-white/10 hover:border-primary-400/50">
+                            Посмотреть кейс →
+                        </a>
+                    </div>
+
+                    <!-- Кейс 4: ВТБ (2021) -->
+                    <div class="glass rounded-2xl p-4 reveal flex flex-col justify-between hover:transform hover:-translate-y-1 transition-all">
+                        <div>
+                            <div class="flex gap-2 mb-2">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-primary-500/30 text-white font-semibold">2021</span>
+                            </div>
+                            <h3 class="text-base font-bold text-white mb-1.5">Состоятельные клиенты</h3>
+                            <p class="text-gray-400 text-xs mb-3">Бизнес-процесс, анализ транзакционного бизнеса</p>
+                        </div>
+                        <a href="case-vtb.html" class="w-full block text-white text-center py-2 rounded-full text-xs font-medium hover:text-primary-400 transition-colors border border-white/10 hover:border-primary-400/50">
+                            Посмотреть кейс →
+                        </a>
+                    </div>
+
+                    <!-- Кейс 5: РСХБ (2025) -->
+                    <div class="glass rounded-2xl p-4 reveal flex flex-col justify-between hover:transform hover:-translate-y-1 transition-all">
+                        <div>
+                            <div class="flex gap-2 mb-2">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-primary-500/30 text-white font-semibold">2025</span>
+                            </div>
+                            <h3 class="text-base font-bold text-white mb-1.5">Улучшения для ДБО РСХБ</h3>
+                            <p class="text-gray-400 text-xs mb-3">Улучшение функций и предложение новой функции в мобильном приложении Россельхозбанка</p>
+                        </div>
+                        <a href="case-rshb.html" class="w-full block text-white text-center py-2 rounded-full text-xs font-medium hover:text-primary-400 transition-colors border border-white/10 hover:border-primary-400/50">
+                            Посмотреть кейс →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section - отступ уменьшен в 1.5 раза -->
+        <section id="contact" class="py-10 relative">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-6 reveal">
+                    <span class="text-pink-400 font-mono text-sm font-semibold tracking-wider">СВЯЗЬ</span>
+                    <h2 class="font-display text-4xl md:text-5xl font-bold mt-3">Давайте <span class="text-gradient">обсудим</span> ваш проект</h2>
+                </div>
+                <div class="flex flex-col items-center gap-4 max-w-2xl mx-auto">
+                    <div class="glass rounded-2xl p-5 w-full max-w-md reveal text-center hover:transform hover:-translate-y-1 transition">
+                        <div class="flex justify-center mb-2"><img src="assets/gmail.png" alt="Gmail" class="w-9 h-9 object-contain hover:scale-110 transition-transform duration-300" loading="lazy"></div>
+                        <a href="mailto:dmitriynolfin@gmail.com" class="text-lg hover:text-primary-400 transition font-medium">dmitriynolfin@gmail.com</a>
+                    </div>
+                    <div class="glass rounded-2xl p-5 w-full max-w-md reveal text-center hover:transform hover:-translate-y-1 transition">
+                        <div class="flex justify-center mb-2"><img src="assets/tg.png" alt="Telegram" class="w-9 h-9 object-contain hover:scale-110 transition-transform duration-300" loading="lazy"></div>
+                        <a href="https://t.me/dmitriynolfin" class="text-lg hover:text-cyan-400 transition font-medium">@dmitriynolfin</a>
+                    </div>
+                    <div class="glass rounded-2xl p-5 w-full max-w-md reveal text-center hover:transform hover:-translate-y-1 transition">
+                        <div class="flex justify-center mb-2"><img src="assets/link.png" alt="LinkedIn" class="w-9 h-9 object-contain hover:scale-110 transition-transform duration-300" loading="lazy"></div>
+                        <a href="https://linkedin.com/in/dmitriynolfin" class="text-lg hover:text-cyan-400 transition font-medium">linkedin.com/in/dmitriynolfin</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-white/10 py-10">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="text-xl font-bold font-display mb-1"><span class="text-gradient">Дима Нольфин</span></div>
+            <p class="text-gray-400 font-mono text-xs">© 2026 · Продуктовый консалтинг</p>
+        </div>
+    </footer>
+
+    <script>
+        // Мобильное меню
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        let menuOpen = false;
+
+        menuBtn?.addEventListener('click', () => {
+            menuOpen = !menuOpen;
+            if (menuOpen) { mobileMenu.classList.remove('hidden'); mobileMenu.classList.add('flex'); } 
+            else { mobileMenu.classList.add('hidden'); mobileMenu.classList.remove('flex'); }
+        });
+
+        mobileMenu?.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => { menuOpen = false; mobileMenu.classList.add('hidden'); mobileMenu.classList.remove('flex'); });
+        });
+
+        // Анимация появления при скролле
+        const reveals = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => {
+            reveals.forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('visible');
+            });
+        };
+
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', () => {
+            document.body.classList.add('js-ready');
+            revealOnScroll();
+            
+            // Плавный возврат к проекту или секции
+            const projectId = sessionStorage.getItem('scrollToProject');
+            const sectionId = sessionStorage.getItem('scrollToSection');
+            
+            if (!projectId && !sectionId) return;
+            
+            if (projectId) sessionStorage.removeItem('scrollToProject');
+            if (sectionId) sessionStorage.removeItem('scrollToSection');
+            
+            const targetId = projectId ? `project-${projectId}` : sectionId;
+            const target = document.getElementById(targetId);
+            if (!target) return;
+            
+            function doScroll() {
+                const html = document.documentElement;
+                const originalBehavior = html.style.scrollBehavior;
+                html.style.scrollBehavior = 'auto';
+                
+                const offset = 120;
+                const rect = target.getBoundingClientRect();
+                const offsetPosition = window.pageYOffset + rect.top - offset;
+                
+                window.scrollTo(0, offsetPosition);
+                
+                setTimeout(() => {
+                    html.style.scrollBehavior = originalBehavior || 'smooth';
+                }, 50);
+                
+                if (projectId) {
+                    target.classList.add('ring-4', 'ring-primary-400', 'transition-all');
+                    setTimeout(() => {
+                        target.classList.remove('ring-4', 'ring-primary-400');
+                    }, 2000);
+                }
+            }
+            
+            if (document.readyState === 'complete') {
+                setTimeout(doScroll, 100);
+            } else {
+                window.addEventListener('load', () => setTimeout(doScroll, 150));
+            }
+        });
+
+        // Плавный скролл по якорям
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // Эффект навбара при скролле
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) navbar.classList.add('py-2'); 
+            else navbar.classList.remove('py-2');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кейс Состоятельные клиенты · Дима Нольфин</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Manrope'], display: ['Space Grotesk'] }, colors: { primary: { 400: '#38bdf8', 500: '#0ea5e9' } } } } }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+        body { font-family: 'Manrope', sans-serif; background: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%); color: #fff; min-height: 100vh; overflow-x: hidden; }
+        .text-gradient { background: linear-gradient(135deg, #0ea5e9, #a855f7, #06b6d4); background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: grad 8s ease infinite; }
+        @keyframes grad { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        .glass { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); }
+        .reveal { opacity: 1; transform: translateY(0); transition: all 0.7s ease; }
+        body.js-ready .reveal { opacity: 0; transform: translateY(30px); }
+        body.js-ready .reveal.visible { opacity: 1; transform: translateY(0); }
+        .solution-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-out; }
+        .solution-content.expanded { max-height: 5000px; transition: max-height 0.8s ease-in; }
+        .chevron { transition: transform 0.3s ease; }
+        .chevron.rotated { transform: rotate(180deg); }
+        
+        /* Advanced Image Viewer */
+        .image-viewer {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.98); z-index: 1000; display: none;
+            justify-content: center; align-items: center; overflow: hidden; cursor: zoom-out;
+        }
+        .image-viewer.active { display: flex; }
+        .image-viewer img {
+            max-width: 90%; max-height: 90%; object-fit: contain;
+            transform: scale(1) translate(0, 0); transition: transform 0.3s ease;
+            cursor: grab; user-select: none; -webkit-user-drag: none; touch-action: none;
+        }
+        .image-viewer img.zoomed { cursor: grabbing; transition: none; }
+        .viewer-controls {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 12px; z-index: 1001; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        .viewer-controls.show { opacity: 1; pointer-events: all; }
+        .viewer-btn {
+            background: rgba(255,255,255,0.95); border: none; padding: 12px 24px; border-radius: 30px;
+            cursor: pointer; font-weight: 600; font-size: 14px; color: #000; transition: all 0.2s; backdrop-filter: blur(10px);
+        }
+        .viewer-btn:hover { background: rgba(255,255,255,1); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .viewer-hint {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.95); color: #000; padding: 12px 24px; border-radius: 30px;
+            font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+            z-index: 1001; text-align: center; backdrop-filter: blur(10px);
+        }
+        .viewer-hint.show { opacity: 1; }
+        .zoom-level {
+            position: fixed; top: 30px; right: 30px; background: rgba(255,255,255,0.9);
+            padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;
+            opacity: 0; transition: opacity 0.3s; z-index: 1001;
+        }
+        .zoom-level.show { opacity: 1; }
+    </style>
+</head>
+<body class="antialiased">
+    <nav class="fixed top-0 left-0 w-full z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="glass rounded-2xl px-6 py-3 flex items-center justify-between">
+                <a href="index.html" class="text-xl font-bold"><span class="text-gradient">Дима Нольфин · Продуктовый консалтинг</span></a>
+                <button onclick="goBack()" class="text-sm font-medium hover:text-primary-400 transition cursor-pointer bg-transparent border-none">← Назад</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Advanced Image Viewer -->
+    <div id="imageViewer" class="image-viewer">
+        <img id="viewerImage" src="" alt="Full size">
+    </div>
+    <div id="viewerHint" class="viewer-hint">
+        🔍 Колёсико — масштаб • Зажать и тянуть — перемещение • ESC — закрыть
+    </div>
+    <div id="zoomLevel" class="zoom-level">100%</div>
+    <div id="viewerControls" class="viewer-controls">
+        <button class="viewer-btn" onclick="zoomOut()">− Уменьшить</button>
+        <button class="viewer-btn" onclick="resetViewer()">↺ Сбросить</button>
+        <button class="viewer-btn" onclick="zoomIn()">+ Увеличить</button>
+        <button class="viewer-btn" onclick="closeViewer()">✕ Закрыть</button>
+    </div>
+
+    <main class="pt-32 pb-24">
+        <div class="max-w-5xl mx-auto px-6">
+            <!-- Заголовок -->
+            <div class="text-center mb-12 reveal">
+                <h1 class="font-display text-4xl md:text-6xl font-bold mb-4">Кейс: <span class="text-gradient">Состоятельные клиенты</span></h1>
+                <p class="text-gray-400 text-lg">Задания для собеседования · Состоятельные клиенты</p>
+            </div>
+
+            <!-- Контекст кейса -->
+            <div class="glass rounded-2xl p-6 mb-8 reveal">
+                <h3 class="text-xl font-bold mb-3">📋 Контекст</h3>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    Серия продуктовых задач для работы с состоятельными клиентами банка. 
+                    Кейс охватывает описание бизнес-процессов, анализ транзакционного бизнеса 
+                    и работу с VIP-сегментом.
+                </p>
+            </div>
+
+            <!-- Список заданий -->
+            <div class="space-y-4 mb-8">
+                
+                <!-- Задание 1 -->
+                <div class="glass rounded-2xl p-6 reveal">
+                    <div class="flex items-start gap-4">
+                        <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400 font-bold text-sm">1</span>
+                        <div class="flex-grow">
+                            <h4 class="text-lg font-semibold text-white mb-2">Бизнес-процесс открытия вклада</h4>
+                            <p class="text-gray-300 text-sm mb-3">Описать бизнес-процесс открытия вклада на сумму 1 миллиард рублей</p>
+                            
+                            <button onclick="toggleSolution('solution-1', this)" class="inline-flex items-center gap-2 text-primary-400 hover:text-primary-300 text-sm font-medium transition-colors cursor-pointer bg-transparent border-none">
+                                <span class="solution-btn-text">Посмотреть решение</span>
+                                <svg class="w-4 h-4 chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+
+                            <div id="solution-1" class="solution-content mt-4">
+                                <div class="pt-4 border-t border-white/10">
+                                    <div class="prose prose-invert max-w-none mb-6">
+                                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                                            Ниже представлена верхнеуровневая BPMN-диаграмма бизнес-процесса открытия вклада на сумму 1 миллиард рублей с множеством процессов, которые должны раскрываться в подпроцессы.
+                                        </p>
+                                        
+                                        <div class="bg-white/5 rounded-xl p-4 my-6 border border-white/10">
+                                            <h5 class="text-white font-semibold mb-3">📊 Участники процесса:</h5>
+                                            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                                                <div>
+                                                    <h6 class="text-primary-400 font-semibold mb-2">Сторона клиента:</h6>
+                                                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                                                        <li>СК — состоятельный клиент</li>
+                                                        <li>ДЛСК — доверенное лицо состоятельного клиента</li>
+                                                    </ul>
+                                                </div>
+                                                <div>
+                                                    <h6 class="text-primary-400 font-semibold mb-2">Банк:</h6>
+                                                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                                                        <li>ПМ — персональный менеджер</li>
+                                                        <li>РПМ — руководитель персонального менеджера</li>
+                                                        <li>АС — автоматизированная система банка</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                                            Диаграмма показывает взаимодействие между клиентом и банком на всех этапах открытия вклада: от принятия решения до передачи денег и подписания документов.
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="mt-6">
+                                        <img src="images/bpmn-vtb-deposit.png" alt="BPMN диаграмма открытия вклада" class="w-full rounded-xl border border-white/10 cursor-pointer hover:opacity-80 transition-opacity" onclick="openViewer(this.src)">
+                                        <p class="text-gray-500 text-xs text-center mt-2">BPMN-диаграмма процесса открытия вклада (кликните для просмотра в полном размере)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Задание 2 -->
+                <div class="glass rounded-2xl p-6 reveal">
+                    <div class="flex items-start gap-4">
+                        <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400 font-bold text-sm">2</span>
+                        <div class="flex-grow">
+                            <h4 class="text-lg font-semibold text-white mb-2">Анализ транзакционного бизнеса</h4>
+                            <p class="text-gray-300 text-sm mb-3">Почему банк теряет долю в транзакционном бизнесе на рынке состоятельных клиентов?</p>
+                            
+                            <button onclick="toggleSolution('solution-2', this)" class="inline-flex items-center gap-2 text-primary-400 hover:text-primary-300 text-sm font-medium transition-colors cursor-pointer bg-transparent border-none">
+                                <span class="solution-btn-text">Посмотреть решение</span>
+                                <svg class="w-4 h-4 chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+
+                            <div id="solution-2" class="solution-content mt-4">
+                                <div class="pt-4 border-t border-white/10">
+                                    <div class="prose prose-invert max-w-none mb-6">
+                                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                                            Для начала разберёмся с тем, что есть "транзакционный бизнес". Транзакционный бизнес — это бизнес, который приносит транзакционный комиссионный доход.
+                                        </p>
+                                        
+                                        <div class="bg-white/5 rounded-xl p-4 my-6 border border-white/10">
+                                            <h5 class="text-white font-semibold mb-3">💳 Транзакционные продукты:</h5>
+                                            <ul class="text-gray-300 text-sm space-y-2 ml-4 list-disc">
+                                                <li>Открытие и обслуживание счетов</li>
+                                                <li>Расчётно-кассовое обслуживание</li>
+                                                <li>Дистанционное банковское обслуживание (ДБО)</li>
+                                                <li>Валютно-обменные операции и валютный контроль</li>
+                                                <li>Депозиты, облигации банка</li>
+                                                <li>Депозитные сертификаты и другие продукты</li>
+                                            </ul>
+                                        </div>
+
+                                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                                            Рассмотрим один из продуктов, который драйвит транзакционный бизнес — <strong class="text-white">дебетовая карта</strong>. Предположим, что банк теряет долю в транзакционном бизнесе на рынке состоятельных клиентов именно в разрезе этого продукта.
+                                        </p>
+
+                                        <div class="bg-primary-500/10 rounded-xl p-4 my-6 border border-primary-500/30">
+                                            <h5 class="text-primary-400 font-semibold mb-3">🔍 Подход к исследованию:</h5>
+                                            <p class="text-gray-300 text-sm mb-3">
+                                                Чтобы разобраться в ситуации, я бы провёл ряд исследований. Ниже в таблице примеры гипотез и способы проверки этих гипотез:
+                                            </p>
+                                            
+                                            <div class="overflow-x-auto">
+                                                <table class="w-full text-sm text-left">
+                                                    <thead class="text-xs uppercase bg-white/5">
+                                                        <tr>
+                                                            <th class="px-4 py-3 rounded-tl-lg">№</th>
+                                                            <th class="px-4 py-3">Гипотеза</th>
+                                                            <th class="px-4 py-3">Способ проверки</th>
+                                                            <th class="px-4 py-3 rounded-tr-lg">Предположение</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="text-gray-300">
+                                                        <tr class="border-b border-white/5">
+                                                            <td class="px-4 py-3 font-bold text-primary-400">1</td>
+                                                            <td class="px-4 py-3">Мы теряем долю дебетовых карт на рынке состоятельных клиентов</td>
+                                                            <td class="px-4 py-3 text-xs">На данных, глянуть воронку выдач дебетовых карт, сравнить ретроспективно долю выдач дебетовых карт нашим банком и другими банками</td>
+                                                            <td class="px-4 py-3 text-xs">Если мы теряем долю дебетовых карт, то я бы задался вопросом: а почему так происходит? Провёл бы конкурентный анализ клиентских путей "жизни" дебетовых карт у состоятельных клиентов</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="px-4 py-3 font-bold text-primary-400">2</td>
+                                                            <td class="px-4 py-3">Мы НЕ теряем долю дебетовых карт на рынке состоятельных клиентов</td>
+                                                            <td class="px-4 py-3 text-xs">Конкурентный анализ, анализ обращений и жалоб, качественные и количественные исследования</td>
+                                                            <td class="px-4 py-3 text-xs">Доля наших дебетовых карт не меняется, но меняется транзакционная активность по этим картам. Проблем может быть множество: экосистемные продукты конкурентов, неудобный интерфейс ДБО, жалобы на неработающий функционал</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                                            Аналогичные гипотезы и способы проверки можно накидать по каждому продукту, который генерит нам транзакционный доход. Причина может быть не в одном лишь продукте и не в одном лишь этапе клиентского пути.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Кнопка назад -->
+            <div class="text-center mt-8 reveal">
+                <button onclick="goBack()" class="inline-flex items-center gap-2 glass px-8 py-4 rounded-full font-semibold hover:bg-white/15 transition-all cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Вернуться к кейсам
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Toggle Solution
+        function toggleSolution(id, btn) {
+            const content = document.getElementById(id);
+            const chevron = btn.querySelector('.chevron');
+            const btnText = btn.querySelector('.solution-btn-text');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                chevron.classList.remove('rotated');
+                btnText.textContent = 'Посмотреть решение';
+            } else {
+                content.classList.add('expanded');
+                chevron.classList.add('rotated');
+                btnText.textContent = 'Скрыть решение';
+            }
+        }
+
+        // Advanced Image Viewer with Zoom and Pan
+        let viewerState = {
+            isOpen: false, scale: 1, x: 0, y: 0, isDragging: false, startX: 0, startY: 0
+        };
+
+        function openViewer(src) {
+            const viewer = document.getElementById('imageViewer');
+            const img = document.getElementById('viewerImage');
+            const hint = document.getElementById('viewerHint');
+            const controls = document.getElementById('viewerControls');
+            const zoomLevel = document.getElementById('zoomLevel');
+            
+            img.src = src;
+            viewer.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            viewerState.isOpen = true; viewerState.scale = 1; viewerState.x = 0; viewerState.y = 0; viewerState.isDragging = false;
+            
+            updateTransform(); updateZoomLevel();
+            
+            setTimeout(() => {
+                hint.classList.add('show'); controls.classList.add('show'); zoomLevel.classList.add('show');
+                setTimeout(() => hint.classList.remove('show'), 5000);
+            }, 100);
+        }
+
+        function closeViewer() {
+            document.getElementById('imageViewer').classList.remove('active');
+            document.getElementById('viewerHint').classList.remove('show');
+            document.getElementById('viewerControls').classList.remove('show');
+            document.getElementById('zoomLevel').classList.remove('show');
+            document.body.style.overflow = '';
+            viewerState.isOpen = false;
+        }
+
+        function zoomIn() {
+            if (!viewerState.isOpen) return;
+            viewerState.scale = Math.min(viewerState.scale * 1.5, 5);
+            updateTransform(); updateZoomLevel();
+        }
+
+        function zoomOut() {
+            if (!viewerState.isOpen) return;
+            viewerState.scale = Math.max(viewerState.scale / 1.5, 1);
+            if (viewerState.scale === 1) { viewerState.x = 0; viewerState.y = 0; }
+            updateTransform(); updateZoomLevel();
+        }
+
+        function resetViewer() {
+            viewerState.scale = 1; viewerState.x = 0; viewerState.y = 0;
+            updateTransform(); updateZoomLevel();
+        }
+
+        function updateTransform() {
+            const img = document.getElementById('viewerImage');
+            img.style.transform = `scale(${viewerState.scale}) translate(${viewerState.x / viewerState.scale}px, ${viewerState.y / viewerState.scale}px)`;
+            img.classList.toggle('zoomed', viewerState.scale > 1);
+        }
+
+        function updateZoomLevel() {
+            document.getElementById('zoomLevel').textContent = Math.round(viewerState.scale * 100) + '%';
+        }
+
+        // Mouse events
+        document.getElementById('imageViewer').addEventListener('mousedown', (e) => {
+            if (e.target.id === 'imageViewer') { closeViewer(); return; }
+            if (viewerState.scale <= 1) return;
+            viewerState.isDragging = true;
+            viewerState.startX = e.clientX - viewerState.x;
+            viewerState.startY = e.clientY - viewerState.y;
+            document.getElementById('viewerImage').style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!viewerState.isDragging || !viewerState.isOpen) return;
+            e.preventDefault();
+            viewerState.x = e.clientX - viewerState.startX;
+            viewerState.y = e.clientY - viewerState.startY;
+            updateTransform();
+        });
+
+        document.addEventListener('mouseup', () => {
+            viewerState.isDragging = false;
+            const img = document.getElementById('viewerImage');
+            if (img) img.style.cursor = viewerState.scale > 1 ? 'grabbing' : 'grab';
+        });
+
+        // Wheel zoom
+        document.getElementById('imageViewer').addEventListener('wheel', (e) => {
+            if (!viewerState.isOpen) return;
+            e.preventDefault();
+            if (e.deltaY < 0) viewerState.scale = Math.min(viewerState.scale * 1.2, 5);
+            else { viewerState.scale = Math.max(viewerState.scale / 1.2, 1); if (viewerState.scale === 1) { viewerState.x = 0; viewerState.y = 0; } }
+            updateTransform(); updateZoomLevel();
+        }, { passive: false });
+
+        // Touch events
+        let touchStartDist = 0, touchStartScale = 1;
+        document.getElementById('imageViewer').addEventListener('touchstart', (e) => {
+            if (e.target.id === 'imageViewer') { closeViewer(); return; }
+            if (e.touches.length === 1) {
+                viewerState.isDragging = true; viewerState.startX = e.touches[0].clientX - viewerState.x; viewerState.startY = e.touches[0].clientY - viewerState.y;
+            } else if (e.touches.length === 2) {
+                viewerState.isDragging = false;
+                touchStartDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+                touchStartScale = viewerState.scale;
+            }
+        });
+        document.getElementById('imageViewer').addEventListener('touchmove', (e) => {
+            if (!viewerState.isOpen) return;
+            e.preventDefault();
+            if (e.touches.length === 1 && viewerState.isDragging) {
+                viewerState.x = e.touches[0].clientX - viewerState.startX; viewerState.y = e.touches[0].clientY - viewerState.startY;
+                updateTransform();
+            } else if (e.touches.length === 2) {
+                const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+                viewerState.scale = Math.min(Math.max(touchStartScale * (dist / touchStartDist), 1), 5);
+                updateTransform(); updateZoomLevel();
+            }
+        }, { passive: false });
+        document.getElementById('imageViewer').addEventListener('touchend', () => { viewerState.isDragging = false; });
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (!viewerState.isOpen) return;
+            if (e.key === 'Escape') closeViewer();
+            if (e.key === '+' || e.key === '=') zoomIn();
+            if (e.key === '-') zoomOut();
+            if (e.key === '0') resetViewer();
+        });
+
+        // Функция возврата на главную с сохранением позиции
+        function goBack() {
+            const referrer = document.referrer;
+            let targetHash = 'cases'; // по умолчанию — секция кейсов
+            
+            // Извлекаем якорь из URL, с которого перешли
+            if (referrer && referrer.includes('#')) {
+                const hash = referrer.split('#')[1]?.split('?')[0];
+                if (hash) targetHash = hash;
+            }
+            
+            // Сохраняем в sessionStorage и переходим
+            sessionStorage.setItem('scrollToSection', targetHash);
+            window.location.href = 'index.html';
+        }
+
+        // Плавный возврат к секции без видимого скачка
+        (function() {
+            const targetSection = sessionStorage.getItem('scrollToSection');
+            if (!targetSection) return;
+            
+            sessionStorage.removeItem('scrollToSection');
+            const target = document.getElementById(targetSection);
+            if (!target) return;
+            
+            // 1. Временно отключаем плавный скролл в CSS
+            const html = document.documentElement;
+            const originalBehavior = html.style.scrollBehavior;
+            html.style.scrollBehavior = 'auto';
+            
+            // 2. Ждём полной загрузки всех ресурсов + небольшой буфер
+            function doScroll() {
+                const offset = 100; // высота фиксированной шапки
+                const rect = target.getBoundingClientRect();
+                const offsetPosition = window.pageYOffset + rect.top - offset;
+                
+                // 3. Мгновенный скролл (без анимации)
+                window.scrollTo(0, offsetPosition);
+                
+                // 4. Возвращаем плавный скролл обратно
+                setTimeout(() => {
+                    html.style.scrollBehavior = originalBehavior || 'smooth';
+                }, 50);
+            }
+            
+            // Если страница уже загружена — скроллим сразу
+            if (document.readyState === 'complete') {
+                setTimeout(doScroll, 50);
+            } else {
+                window.addEventListener('load', () => setTimeout(doScroll, 100));
+            }
+        })();
+    </script>
+</body>
+</html>
