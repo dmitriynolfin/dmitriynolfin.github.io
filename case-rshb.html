@@ -392,17 +392,23 @@ permalink: /case-rshb/
         // Функция возврата на главную с сохранением позиции
         function goBack() {
             const referrer = document.referrer;
-            let targetHash = 'cases'; // по умолчанию — секция кейсов
+            let targetHash = 'cases';
             
-            // Извлекаем якорь из URL, с которого перешли
             if (referrer && referrer.includes('#')) {
                 const hash = referrer.split('#')[1]?.split('?')[0];
                 if (hash) targetHash = hash;
             }
             
-            // Сохраняем в sessionStorage и переходим
             sessionStorage.setItem('scrollToSection', targetHash);
-            window.location.href = '/main/';
+            
+            // ИСПРАВЛЕНО: используем replace вместо href и ПОЛНЫЙ URL
+            // replace() не добавляет запись в историю и надёжнее href
+            try {
+                window.location.replace('https://dmitriynolfin.ru/main/');
+            } catch (e) {
+                // Fallback на случай ошибки
+                window.location.href = 'https://dmitriynolfin.ru/main/';
+            }
         }
 
         // Плавный возврат к секции без видимого скачка
