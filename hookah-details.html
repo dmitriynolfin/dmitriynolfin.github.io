@@ -7,6 +7,8 @@ permalink: /hookah-details/
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="https://dmitriynolfin.ru/">
+    <link rel="canonical" href="https://dmitriynolfin.ru/hookah-details/">
     <title>Hookah lounge in Dubai · Дмитрий Нольфин</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,7 +33,7 @@ permalink: /hookah-details/
     <nav class="fixed top-0 left-0 w-full z-50">
         <div class="max-w-7xl mx-auto px-6 py-4">
             <div class="glass rounded-2xl px-6 py-3 flex items-center justify-between">
-                <a href="index.html" class="text-xl font-bold"><span class="text-gradient">Дмитрий Нольфин · Продуктовый консалтинг</span></a>
+                <a href="/main/" class="text-xl font-bold"><span class="text-gradient">Дмитрий Нольфин · Продуктовый консалтинг</span></a>
                 <button onclick="goBack()" class="text-sm font-medium hover:text-primary-400 transition cursor-pointer bg-transparent border-none">← Назад</button>
             </div>
         </div>
@@ -62,7 +64,7 @@ permalink: /hookah-details/
         </div>
         <!-- Кнопка "Назад к pet-проектам" -->
         <div class="text-center mt-16 mb-8">
-            <a href="index.html#work" class="glass px-6 py-3 rounded-full font-semibold hover:bg-white/15 transition-all transform hover:-translate-y-1 text-sm inline-flex items-center gap-2">
+            <a href="/main/#work" class="glass px-6 py-3 rounded-full font-semibold hover:bg-white/15 transition-all transform hover:-translate-y-1 text-sm inline-flex items-center gap-2">
                 ← Назад к pet-проектам
             </a>
         </div>
@@ -72,17 +74,24 @@ permalink: /hookah-details/
         // Функция возврата на главную с сохранением позиции
         function goBack() {
             const referrer = document.referrer;
-            let targetHash = 'work'; // по умолчанию — секция Pet-проекты
+            let targetHash = 'work';
             
-            // Извлекаем якорь из URL, с которого перешли
             if (referrer && referrer.includes('#')) {
                 const hash = referrer.split('#')[1]?.split('?')[0];
                 if (hash) targetHash = hash;
             }
             
-            // Сохраняем в sessionStorage и переходим
+            // Сохраняем и секцию, и id проекта — чтобы на главной страница
+            // и проскроллилась к секции pet-проектов, и подсветила карточку Hookah
+            sessionStorage.setItem('scrollToProject', 'hookah');
             sessionStorage.setItem('scrollToSection', targetHash);
-            window.location.href = 'index.html';
+            
+            // ИСПРАВЛЕНО: используем replace вместо href и ПОЛНЫЙ URL
+            try {
+                window.location.replace('https://dmitriynolfin.ru/main/');
+            } catch (e) {
+                window.location.href = 'https://dmitriynolfin.ru/main/';
+            }
         }
 
         // Анимация при скролле
