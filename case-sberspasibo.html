@@ -7,6 +7,8 @@ permalink: /case-sberspasibo/
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="https://dmitriynolfin.ru/">
+    <link rel="canonical" href="https://dmitriynolfin.ru/case-sberspasibo/">
     <title>Кейс СберСпасибо · Дмитрий Нольфин</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,7 +74,7 @@ permalink: /case-sberspasibo/
     <nav class="fixed top-0 left-0 w-full z-50">
         <div class="max-w-7xl mx-auto px-6 py-4">
             <div class="glass rounded-2xl px-6 py-3 flex items-center justify-between">
-                <a href="index.html" class="text-xl font-bold"><span class="text-gradient">Дмитрий Нольфин · Продуктовый консалтинг</span></a>
+                <a href="/main/" class="text-xl font-bold"><span class="text-gradient">Дмитрий Нольфин · Продуктовый консалтинг</span></a>
                 <button onclick="goBack()" class="text-sm font-medium hover:text-primary-400 transition cursor-pointer bg-transparent border-none">← Назад</button>
             </div>
         </div>
@@ -485,17 +487,21 @@ permalink: /case-sberspasibo/
         // Функция возврата на главную с сохранением позиции
         function goBack() {
             const referrer = document.referrer;
-            let targetHash = 'cases'; // по умолчанию — секция кейсов
+            let targetHash = 'cases';
             
-            // Извлекаем якорь из URL, с которого перешли
             if (referrer && referrer.includes('#')) {
                 const hash = referrer.split('#')[1]?.split('?')[0];
                 if (hash) targetHash = hash;
             }
             
-            // Сохраняем в sessionStorage и переходим
             sessionStorage.setItem('scrollToSection', targetHash);
-            window.location.href = 'index.html';
+            
+            // ИСПРАВЛЕНО: используем replace вместо href и ПОЛНЫЙ URL
+            try {
+                window.location.replace('https://dmitriynolfin.ru/main/');
+            } catch (e) {
+                window.location.href = 'https://dmitriynolfin.ru/main/';
+            }
         }
 
         // Плавный возврат к секции без видимого скачка
