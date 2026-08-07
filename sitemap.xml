@@ -1,33 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dmitriynolfin.ru/</loc>
-    <lastmod>2026-01-01</lastmod>
+    <loc>https://dmitriynolfin.ru/main/</loc>
+    <lastmod>2026-08-07</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://dmitriynolfin.ru/case-ct.html</loc>
-    <lastmod>2026-01-01</lastmod>
+    <loc>https://dmitriynolfin.ru/case-ct/</loc>
+    <lastmod>2026-08-07</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dmitriynolfin.ru/case-sberspasibo.html</loc>
-    <lastmod>2026-01-01</lastmod>
+    <loc>https://dmitriynolfin.ru/case-sberspasibo/</loc>
+    <lastmod>2026-08-07</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dmitriynolfin.ru/case-sber-pfm.html</loc>
-    <lastmod>2026-01-01</lastmod>
+    <loc>https://dmitriynolfin.ru/case-sber-pfm/</loc>
+    <lastmod>2026-08-07</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dmitriynolfin.ru/case-vtb.html</loc>
-    <lastmod>2026-01-01</lastmod>
+    <loc>https://dmitriynolfin.ru/case-vtb/</loc>
+    <lastmod>2026-08-07</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dmitriynolfin.ru/case-rshb.html</loc>
-    <lastmod>2026-01-01</lastmod>
+    <loc>https://dmitriynolfin.ru/case-rshb/</loc>
+    <lastmod>2026-08-07</lastmod>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dmitriynolfin.ru/hookah-details/</loc>
+    <lastmod>2026-08-07</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dmitriynolfin.ru/hedonism-dispatch/</loc>
+    <lastmod>2026-08-07</lastmod>
+    <priority>0.7</priority>
   </url>
 </urlset>
