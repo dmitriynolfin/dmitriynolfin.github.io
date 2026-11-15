@@ -497,8 +497,8 @@ permalink: /main/
                                 <input type="text" id="name" name="name" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition" placeholder="Иван Иванов" required>
                             </div>
                             <div>
-                                <label for="contact" class="block text-sm font-medium text-gray-300 mb-1">Telegram или Email</label>
-                                <input type="text" id="contact" name="contact" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition" placeholder="@username или email@example.com" required>
+                                <label for="contactInput" class="block text-sm font-medium text-gray-300 mb-1">Telegram или Email</label>
+                                <input type="text" id="contactInput" name="contact" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition" placeholder="@username или email@example.com" required>
                             </div>
                             <div>
                                 <label for="format" class="block text-sm font-medium text-gray-300 mb-1">Что интересует (необязательно)</label>
@@ -554,7 +554,7 @@ permalink: /main/
         </div>
     </footer>
 
-    <!-- ==================== СКРИПТ ФОРМЫ (исправленный) ==================== -->
+    <!-- ==================== СКРИПТ ФОРМЫ (исправленный, без конфликта ID) ==================== -->
     <script>
     (function () {
         var GAS_URL = 'https://script.google.com/macros/s/AKfycbw6IoDV5Jzro5HVg9M9g_RLaWbaFLiVS6AT37g0kkmPruS9yM3FZ24LCheTfcpv9x7O/exec';
@@ -593,7 +593,7 @@ permalink: /main/
                 if (honey && honey.value) return;
 
                 var name = getVal('name');
-                var contact = getVal('contact');
+                var contact = getVal('contactInput');  // <-- ВАЖНО: contactInput, а не contact
                 var task = getVal('task');
                 var format = getVal('format');
 
