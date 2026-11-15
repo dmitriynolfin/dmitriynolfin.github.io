@@ -269,7 +269,6 @@ permalink: /main/
                     <span class="text-pink-400 font-mono text-sm font-semibold tracking-wider">ФОРМАТЫ РАБОТЫ</span>
                     <h2 class="font-display text-4xl md:text-5xl font-bold mt-4">Выберите <span class="text-gradient">подходящий формат</span></h2>
                 </div>
-                <!-- Сетка из 4 блоков в одну линию на больших экранах -->
                 <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
                     
                     <!-- 00: Экспресс-аудит -->
@@ -315,7 +314,7 @@ permalink: /main/
                         <a href="#contact" class="w-full block bg-white/10 text-white text-center py-3 rounded-xl font-semibold hover:bg-white/20 transition-all transform hover:scale-[1.02] mt-auto text-sm">Обсудить задачу</a>
                     </div>
 
-                    <!-- 03: Стратегия (теперь в одной линии с остальными) -->
+                    <!-- 03: Стратегия -->
                     <div class="glass rounded-2xl p-6 reveal hover:transform hover:-translate-y-2 transition-all duration-300 flex flex-col">
                         <div class="mb-2"><span class="text-4xl font-bold text-white/20">03</span></div>
                         <h3 class="text-xl font-bold text-white mb-2">СТРАТЕГИЯ</h3>
@@ -376,39 +375,7 @@ permalink: /main/
             </div>
         </section>
 
-        <!-- Testimonials Section -->
-        <section id="testimonials" class="py-12 relative bg-gradient-to-b from-transparent to-white/5">
-            <div class="max-w-7xl mx-auto px-6">
-                <div class="text-center mb-8 reveal">
-                    <span class="text-yellow-400 font-mono text-sm font-semibold tracking-wider">ОТЗЫВЫ</span>
-                    <h2 class="font-display text-4xl md:text-5xl font-bold mt-3">Что говорят <span class="text-gradient">коллеги и клиенты</span></h2>
-                </div>
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div class="glass rounded-2xl p-6 reveal">
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-purple-500 flex items-center justify-center text-xl font-bold">А</div>
-                            <div>
-                                <div class="font-semibold text-white">Имя Фамилия</div>
-                                <div class="text-xs text-gray-400">CPO / CEO, Название компании</div>
-                            </div>
-                        </div>
-                        <p class="text-gray-300 text-sm italic">"Дмитрий помог нам взглянуть на нашу юнит-экономику под другим углом. Мы нашли утечку в воронке, о которой не подозревали, и исправили её за месяц. Рекомендую как системного и честного специалиста."</p>
-                    </div>
-                    <div class="glass rounded-2xl p-6 reveal">
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-green-500 flex items-center justify-center text-xl font-bold">К</div>
-                            <div>
-                                <div class="font-semibold text-white">Имя Фамилия</div>
-                                <div class="text-xs text-gray-400">Product Manager, Банк X</div>
-                            </div>
-                        </div>
-                        <p class="text-gray-300 text-sm italic">"Работали с Дмитрием в формате Fractional CPO. Его способность задавать неудобные, но правильные вопросы сэкономила нам сотни часов разработки ненужных фич. Очень ценю прямоту и опору на данные."</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Training Cases Section (Все 5 кейсов восстановлены) -->
+        <!-- Training Cases Section -->
         <section id="cases" class="py-12 relative">
             <div class="max-w-7xl mx-auto px-6">
                 <div class="text-center mb-8 reveal">
@@ -519,20 +486,29 @@ permalink: /main/
                     <p class="text-gray-400 mt-4 max-w-xl mx-auto text-sm">Оставьте заявку на бесплатный 15-минутный разбор. Я изучу ваш проект и предложу оптимальный формат работы.</p>
                 </div>
                 
-                <div class="max-w-lg mx-auto reveal">
+                <div id="form-container" class="max-w-lg mx-auto reveal">
                     <div class="glass rounded-2xl p-8 border border-primary-500/30 shadow-2xl shadow-primary-500/10">
-                        <form action="#" method="POST" class="space-y-4">
+                        <!-- Настроенная форма отправки на email через FormSubmit -->
+                        <form action="https://formsubmit.co/dmitriynolfin@gmail.com" method="POST" class="space-y-4">
+                            <!-- Скрытые поля для настройки FormSubmit -->
+                            <input type="hidden" name="_subject" value="Новая заявка на продуктовый разбор с сайта dmitriynolfin.ru!">
+                            <input type="hidden" name="_captcha" value="false">
+                            <input type="hidden" name="_template" value="table">
+                            <input type="hidden" name="_next" value="https://dmitriynolfin.ru/main/?success=true#contact">
+                            <!-- Honeypot для защиты от спама -->
+                            <input type="text" name="_honey" style="display:none">
+                            
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-1">Ваше имя</label>
-                                <input type="text" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition" placeholder="Иван Иванов" required>
+                                <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Ваше имя</label>
+                                <input type="text" id="name" name="Имя" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition" placeholder="Иван Иванов" required>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-1">Telegram или Email</label>
-                                <input type="text" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition" placeholder="@username или email@example.com" required>
+                                <label for="contact" class="block text-sm font-medium text-gray-300 mb-1">Telegram или Email</label>
+                                <input type="text" id="contact" name="Контакт" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition" placeholder="@username или email@example.com" required>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-1">Главная задача или проблема</label>
-                                <textarea rows="3" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition" placeholder="Например: нужно посчитать юнит-экономику перед запуском или найти product-market fit" required></textarea>
+                                <label for="message" class="block text-sm font-medium text-gray-300 mb-1">Главная задача или проблема</label>
+                                <textarea rows="3" id="message" name="Задача" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition" placeholder="Например: нужно посчитать юнит-экономику перед запуском или найти product-market fit" required></textarea>
                             </div>
                             <button type="submit" class="w-full bg-primary-500 hover:bg-primary-600 text-white font-bold py-4 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg shadow-primary-500/25">
                                 Записаться на бесплатный разбор
@@ -574,6 +550,21 @@ permalink: /main/
     </footer>
 
     <script>
+        // Обработка успешной отправки формы
+        if (window.location.search.includes('success=true')) {
+            const formContainer = document.getElementById('form-container');
+            if (formContainer) {
+                formContainer.innerHTML = `
+                    <div class="glass rounded-2xl p-10 border border-green-500/30 shadow-2xl shadow-green-500/10 text-center">
+                        <div class="w-20 h-20 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center text-4xl mx-auto mb-6 animate-float">✓</div>
+                        <h3 class="text-3xl font-display font-bold text-white mb-3">Заявка отправлена!</h3>
+                        <p class="text-gray-300 text-lg mb-6">Спасибо за обращение. Я изучу ваш запрос и свяжусь с вами в течение 24 часов для назначения времени созвона.</p>
+                        <a href="/main/" class="inline-block bg-white/10 text-white px-6 py-3 rounded-full font-semibold hover:bg-white/20 transition text-sm">Вернуться на главную</a>
+                    </div>
+                `;
+            }
+        }
+
         // Мобильное меню
         const menuBtn = document.getElementById('menuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
