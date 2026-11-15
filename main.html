@@ -554,14 +554,14 @@ permalink: /main/
         </div>
     </footer>
 
-    <!-- ==================== СКРИПТ ФОРМЫ (исправленный, без конфликта ID) ==================== -->
+    <!-- ==================== СКРИПТ ФОРМЫ: GET-отправка (обходит редирект 302 Apps Script) ==================== -->
     <script>
     (function () {
         var GAS_URL = 'https://script.google.com/macros/s/AKfycbw6IoDV5Jzro5HVg9M9g_RLaWbaFLiVS6AT37g0kkmPruS9yM3FZ24LCheTfcpv9x7O/exec';
 
         function bind() {
             var form = document.getElementById('leadForm');
-            var btn = document.getElementById('submitBtn');
+            var btn  = document.getElementById('submitBtn');
             var note = document.getElementById('formNote');
 
             if (!form || !btn || !note) {
@@ -571,17 +571,9 @@ permalink: /main/
 
             var busy = false;
 
-            // Безопасная функция получения значения
             function getVal(id) {
                 var el = document.getElementById(id);
-                if (!el) {
-                    console.warn('[leadForm] Элемент не найден:', id);
-                    return '';
-                }
-                if (typeof el.value === 'undefined' || el.value === null) {
-                    console.warn('[leadForm] value undefined для:', id);
-                    return '';
-                }
+                if (!el || el.value == null) return '';
                 return String(el.value).trim();
             }
 
@@ -592,9 +584,9 @@ permalink: /main/
                 var honey = form.querySelector('[name="_honey"]');
                 if (honey && honey.value) return;
 
-                var name = getVal('name');
-                var contact = getVal('contactInput');  // <-- ВАЖНО: contactInput, а не contact
-                var task = getVal('task');
+                var name   = getVal('name');
+                var contact = getVal('contactInput');
+                var task   = getVal('task');
                 var format = getVal('format');
 
                 console.log('[leadForm] Значения:', { name: name, contact: contact, task: task, format: format });
@@ -608,17 +600,22 @@ permalink: /main/
                 busy = true;
                 btn.disabled = true;
                 btn.textContent = 'Отправляю…';
-                console.log('[leadForm] Начинаю отправку…');
 
-                var payload = JSON.stringify({ 
-                    name: name, 
-                    contact: contact, 
-                    task: task, 
-                    format: format, 
-                    page: location.href 
-                });
+                // GET-запрос с параметрами: переживает редирект 302 Apps Script,
+                // данные попадают в e.parameter() внутри doGet() скрипта.
+                var url = GAS_URL
+                    + '?name='    + encodeURIComponent(name)
+                    + '&contact=' + encodeURIComponent(contact)
+                    + '&task='    + encodeURIComponent(task)
+                    + '&format='  + encodeURIComponent(format)
+                    + '&page='    + encodeURIComponent(location.href)
+                    + '&_honey='  + encodeURIComponent('')
+                    + '&_='       + Date.now(); // анти-кэш
 
-                function onSuccess() {
+                var done = false;
+                function finish() {
+                    if (done) return;
+                    done = true;
                     var c = document.getElementById('form-container');
                     if (c) {
                         c.innerHTML =
@@ -629,10 +626,19 @@ permalink: /main/
                                 '<a href="https://t.me/dmitriynolfin" class="inline-block bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-full font-semibold transition text-sm">Написать мне в Telegram</a>' +
                             '</div>';
                     }
-                    console.log('[leadForm] ✅ Отправлено успешно');
+                    console.log('[leadForm] ✅ Заявка отправлена');
                 }
 
-                function onError(err) {
+                try {
+                    // Image-пиксель: браузер делает GET без CORS и без preflight,
+                    // запрос гарантированно уходит на сервер.
+                    var img = new Image();
+                    img.onload  = finish;
+                    img.onerror = finish; // при редиректе onload может не сработать — запрос уже ушёл
+                    img.src = url;
+                    // страховка: если за 4 сек ничего не случилось — считаем, что запрос ушёл
+                    setTimeout(finish, 4000);
+                } catch (err) {
                     console.error('[leadForm] ❌ ОШИБКА:', err);
                     busy = false;
                     btn.disabled = false;
@@ -641,30 +647,6 @@ permalink: /main/
                         '<a href="https://t.me/dmitriynolfin" class="text-primary-400 underline">@dmitriynolfin</a> или ' +
                         '<a href="mailto:dmitriynolfin@gmail.com" class="text-primary-400 underline">почту</a>.';
                     note.className = 'text-xs text-yellow-400 text-center mt-3';
-                }
-
-                try {
-                    if (typeof fetch === 'function') {
-                        fetch(GAS_URL, {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                            body: payload
-                        }).then(function() {
-                            onSuccess();
-                        }).catch(function(err) {
-                            onError(err);
-                        });
-                    } else {
-                        var xhr = new XMLHttpRequest();
-                        xhr.open('POST', GAS_URL, true);
-                        xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
-                        xhr.onload = function () { onSuccess(); };
-                        xhr.onerror = function () { onError(new Error('xhr error')); };
-                        xhr.send(payload);
-                    }
-                } catch (err) {
-                    onError(err);
                 }
             }
 
