@@ -554,7 +554,7 @@ permalink: /main/
         </div>
     </footer>
 
-    <!-- ==================== СКРИПТ ФОРМЫ (изолированный, пуленепробиваемый) ==================== -->
+    <!-- ==================== СКРИПТ ФОРМЫ (исправленный) ==================== -->
     <script>
     (function () {
         var GAS_URL = 'https://script.google.com/macros/s/AKfycbw6IoDV5Jzro5HVg9M9g_RLaWbaFLiVS6AT37g0kkmPruS9yM3FZ24LCheTfcpv9x7O/exec';
@@ -565,15 +565,24 @@ permalink: /main/
             var note = document.getElementById('formNote');
 
             if (!form || !btn || !note) {
-                console.error('[leadForm] НЕ НАЙДЕНЫ элементы leadForm/submitBtn/formNote');
+                console.error('[leadForm] НЕ НАЙДЕНЫ элементы');
                 return;
             }
 
             var busy = false;
 
-            function val(id) {
+            // Безопасная функция получения значения
+            function getVal(id) {
                 var el = document.getElementById(id);
-                return el ? el.value.trim() : '';
+                if (!el) {
+                    console.warn('[leadForm] Элемент не найден:', id);
+                    return '';
+                }
+                if (typeof el.value === 'undefined' || el.value === null) {
+                    console.warn('[leadForm] value undefined для:', id);
+                    return '';
+                }
+                return String(el.value).trim();
             }
 
             function send(e) {
@@ -581,9 +590,14 @@ permalink: /main/
                 if (busy) return;
 
                 var honey = form.querySelector('[name="_honey"]');
-                if (honey && honey.value) return; // бот
+                if (honey && honey.value) return;
 
-                var name = val('name'), contact = val('contact'), task = val('task'), format = val('format');
+                var name = getVal('name');
+                var contact = getVal('contact');
+                var task = getVal('task');
+                var format = getVal('format');
+
+                console.log('[leadForm] Значения:', { name: name, contact: contact, task: task, format: format });
 
                 if (!name || !contact || !task) {
                     note.textContent = 'Пожалуйста, заполните имя, контакт и задачу.';
@@ -594,9 +608,15 @@ permalink: /main/
                 busy = true;
                 btn.disabled = true;
                 btn.textContent = 'Отправляю…';
-                console.log('[leadForm] отправка…');
+                console.log('[leadForm] Начинаю отправку…');
 
-                var payload = JSON.stringify({ name: name, contact: contact, task: task, format: format, page: location.href });
+                var payload = JSON.stringify({ 
+                    name: name, 
+                    contact: contact, 
+                    task: task, 
+                    format: format, 
+                    page: location.href 
+                });
 
                 function onSuccess() {
                     var c = document.getElementById('form-container');
@@ -609,11 +629,11 @@ permalink: /main/
                                 '<a href="https://t.me/dmitriynolfin" class="inline-block bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-full font-semibold transition text-sm">Написать мне в Telegram</a>' +
                             '</div>';
                     }
-                    console.log('[leadForm] отправлено');
+                    console.log('[leadForm] ✅ Отправлено успешно');
                 }
 
                 function onError(err) {
-                    console.error('[leadForm] ОШИБКА:', err);
+                    console.error('[leadForm] ❌ ОШИБКА:', err);
                     busy = false;
                     btn.disabled = false;
                     btn.textContent = 'Записаться на бесплатный разбор';
@@ -630,9 +650,12 @@ permalink: /main/
                             mode: 'no-cors',
                             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                             body: payload
-                        }).then(onSuccess).catch(onError);
+                        }).then(function() {
+                            onSuccess();
+                        }).catch(function(err) {
+                            onError(err);
+                        });
                     } else {
-                        // Совсем старые браузеры:XHR
                         var xhr = new XMLHttpRequest();
                         xhr.open('POST', GAS_URL, true);
                         xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
@@ -645,11 +668,10 @@ permalink: /main/
                 }
             }
 
-            // Двойная страховка: и submit формы, и click кнопки (busy-флаг защищает от дубля)
             form.addEventListener('submit', send);
             btn.addEventListener('click', send);
 
-            console.log('[leadForm] обработчики навешаны ✅');
+            console.log('[leadForm] ✅ Обработчики навешаны');
         }
 
         if (document.readyState === 'loading') {
@@ -660,7 +682,7 @@ permalink: /main/
     })();
     </script>
 
-    <!-- ==================== ОСТАЛЬНОЙ UI-СКРИПТ (меню, анимации, скролл) ==================== -->
+    <!-- ==================== ОСТАЛЬНОЙ UI-СКРИПТ ==================== -->
     <script>
         // Мобильное меню
         const menuBtn = document.getElementById('menuBtn');
