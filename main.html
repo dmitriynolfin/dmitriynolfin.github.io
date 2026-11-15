@@ -554,42 +554,43 @@ permalink: /main/
         </div>
     </footer>
 
-    <!-- ==================== СКРИПТ ФОРМЫ: GET-отправка (обходит редирект 302 Apps Script) ==================== -->
+    <!-- ==================== ИСПРАВЛЕННЫЙ СКРИПТ ФОРМЫ ==================== -->
     <script>
     (function () {
-        var GAS_URL = 'https://script.google.com/macros/s/AKfycbwwfDIvpEAA-Xh80oZiNTXx5iXyhjBlPNg5_MyCJnCogp1PxXcjrNIQ5HiNZ21gcSSP/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwwfDIvpEAA-Xh80oZiNTXx5iXyhjBlPNg5_MyCJnCogp1PxXcjrNIQ5HiNZ21gcSSP/exec';
 
         function bind() {
-            var form = document.getElementById('leadForm');
-            var btn  = document.getElementById('submitBtn');
-            var note = document.getElementById('formNote');
+            const form = document.getElementById('leadForm');
+            const btn = document.getElementById('submitBtn');
+            const note = document.getElementById('formNote');
 
             if (!form || !btn || !note) {
-                console.error('[leadForm] НЕ НАЙДЕНЫ элементы');
+                console.error('[leadForm] Элементы формы не найдены');
                 return;
             }
 
-            var busy = false;
+            let isSubmitting = false;
 
             function getVal(id) {
-                var el = document.getElementById(id);
-                if (!el || el.value == null) return '';
-                return String(el.value).trim();
+                const el = document.getElementById(id);
+                return el ? String(el.value).trim() : '';
             }
 
-            function send(e) {
+            async function send(e) {
                 if (e) e.preventDefault();
-                if (busy) return;
+                if (isSubmitting) return;
 
-                var honey = form.querySelector('[name="_honey"]');
-                if (honey && honey.value) return;
+                // Проверка honeypot
+                const honey = form.querySelector('[name="_honey"]');
+                if (honey && honey.value) {
+                    console.log('[leadForm] Honeypot сработал, отмена');
+                    return;
+                }
 
-                var name   = getVal('name');
-                var contact = getVal('contactInput');
-                var task   = getVal('task');
-                var format = getVal('format');
-
-                console.log('[leadForm] Значения:', { name: name, contact: contact, task: task, format: format });
+                const name = getVal('name');
+                const contact = getVal('contactInput');
+                const task = getVal('task');
+                const format = getVal('format');
 
                 if (!name || !contact || !task) {
                     note.textContent = 'Пожалуйста, заполните имя, контакт и задачу.';
@@ -597,49 +598,50 @@ permalink: /main/
                     return;
                 }
 
-                busy = true;
+                isSubmitting = true;
                 btn.disabled = true;
                 btn.textContent = 'Отправляю…';
+                note.textContent = '';
 
-                // GET-запрос с параметрами: переживает редирект 302 Apps Script,
-                // данные попадают в e.parameter() внутри doGet() скрипта.
-                var url = GAS_URL
-                    + '?name='    + encodeURIComponent(name)
-                    + '&contact=' + encodeURIComponent(contact)
-                    + '&task='    + encodeURIComponent(task)
-                    + '&format='  + encodeURIComponent(format)
-                    + '&page='    + encodeURIComponent(location.href)
-                    + '&_honey='  + encodeURIComponent('')
-                    + '&_='       + Date.now(); // анти-кэш
-
-                var done = false;
-                function finish() {
-                    if (done) return;
-                    done = true;
-                    var c = document.getElementById('form-container');
-                    if (c) {
-                        c.innerHTML =
-                            '<div class="glass rounded-2xl p-10 border border-green-500/30 shadow-2xl shadow-green-500/10 text-center">' +
-                                '<div class="w-20 h-20 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center text-4xl mx-auto mb-6 animate-float">✓</div>' +
-                                '<h3 class="text-3xl font-display font-bold text-white mb-3">' + name + ', заявка принята!</h3>' +
-                                '<p class="text-gray-300 text-lg mb-6">Я уже вижу её в почте. Изучу ваш запрос и отвечу в течение 24 часов, чтобы назначить время созвона.</p>' +
-                            '</div>';
-                    }
-                    console.log('[leadForm] ✅ Заявка отправлена');
-                }
+                const payload = {
+                    name: name,
+                    contact: contact,
+                    task: task,
+                    format: format,
+                    page: window.location.href,
+                    _honey: '',
+                    _t: Date.now() // Анти-кэш
+                };
 
                 try {
-                    // Image-пиксель: браузер делает GET без CORS и без preflight,
-                    // запрос гарантированно уходит на сервер.
-                    var img = new Image();
-                    img.onload  = finish;
-                    img.onerror = finish; // при редиректе onload может не сработать — запрос уже ушёл
-                    img.src = url;
-                    // страховка: если за 4 сек ничего не случилось — считаем, что запрос ушёл
-                    setTimeout(finish, 4000);
+                    // POST + text/plain предотвращает CORS preflight (OPTIONS), 
+                    // который Google Apps Script не поддерживает и из-за которого падала вторая заявка.
+                    await fetch(GAS_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    // При mode: 'no-cors' ответ "opaque", мы не можем его прочитать, 
+                    // но если код дошел сюда без ошибки сети, запрос успешно ушел на сервер Google.
+                    const container = document.getElementById('form-container');
+                    if (container) {
+                        container.innerHTML = `
+                            <div class="glass rounded-2xl p-10 border border-green-500/30 shadow-2xl shadow-green-500/10 text-center">
+                                <div class="w-20 h-20 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center text-4xl mx-auto mb-6 animate-float">✓</div>
+                                <h3 class="text-3xl font-display font-bold text-white mb-3">${name}, заявка принята!</h3>
+                                <p class="text-gray-300 text-lg mb-6">Я уже вижу её в почте. Изучу ваш запрос и отвечу в течение 24 часов, чтобы назначить время созвона.</p>
+                            </div>
+                        `;
+                    }
+                    console.log('[leadForm] ✅ Заявка успешно отправлена');
+
                 } catch (err) {
-                    console.error('[leadForm] ❌ ОШИБКА:', err);
-                    busy = false;
+                    console.error('[leadForm] ❌ ОШИБКА отправки:', err);
+                    isSubmitting = false;
                     btn.disabled = false;
                     btn.textContent = 'Записаться на бесплатный разбор';
                     note.innerHTML = 'Не удалось отправить заявку. Напишите мне напрямую: ' +
@@ -649,10 +651,10 @@ permalink: /main/
                 }
             }
 
+            // Достаточно только submit, так как кнопка находится внутри формы
             form.addEventListener('submit', send);
-            btn.addEventListener('click', send);
-
-            console.log('[leadForm] ✅ Обработчики навешаны');
+            
+            console.log('[leadForm] ✅ Обработчики формы успешно навешаны');
         }
 
         if (document.readyState === 'loading') {
