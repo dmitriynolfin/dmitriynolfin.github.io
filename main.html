@@ -488,7 +488,8 @@ permalink: /main/
                 
                 <div id="form-container" class="max-w-lg mx-auto reveal">
                     <div class="glass rounded-2xl p-8 border border-primary-500/30 shadow-2xl shadow-primary-500/10">
-                        <form id="leadForm" class="space-y-4" novalidate>
+                        <!-- Убран novalidate, чтобы браузер показывал стандартные подсказки для required полей -->
+                        <form id="leadForm" class="space-y-4">
                             <!-- Honeypot от ботов -->
                             <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
 
@@ -556,30 +557,33 @@ permalink: /main/
 
     <script>
         // ==================== ОТПРАВКА ЗАЯВКИ (Google Apps Script, no-cors) ====================
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbw6IoDV5Jzro5HVg9M9g_RLaWbaFLiVS6AT37g0kkmPruS9yM3FZ24LCheTfcpv9x7O/exec';
-
-        (function () {
+        document.addEventListener('DOMContentLoaded', function() {
+            const GAS_URL = 'https://script.google.com/macros/s/AKfycbw6IoDV5Jzro5HVg9M9g_RLaWbaFLiVS6AT37g0kkmPruS9yM3FZ24LCheTfcpv9x7O/exec';
             const leadForm = document.getElementById('leadForm');
-            if (!leadForm) return;
             const submitBtn = document.getElementById('submitBtn');
-            const formNote  = document.getElementById('formNote');
+            const formNote = document.getElementById('formNote');
 
-            leadForm.addEventListener('submit', async (e) => {
+            if (!leadForm || !submitBtn || !formNote) {
+                console.error('Элементы формы не найдены на странице');
+                return;
+            }
+
+            leadForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
-                // honeypot заполнен — это бот, делаем вид, что всё ок
-                if (leadForm.querySelector('[name="_honey"]').value) return;
+                // Проверка на ботов (honeypot)
+                if (leadForm.querySelector('[name="_honey"]').value) {
+                    return;
+                }
 
-                const data = {
-                    name:    document.getElementById('name').value.trim(),
-                    contact: document.getElementById('contact').value.trim(),
-                    format:  document.getElementById('format').value,
-                    task:    document.getElementById('task').value.trim(),
-                    page:    window.location.href
-                };
+                const name = document.getElementById('name').value.trim();
+                const contact = document.getElementById('contact').value.trim();
+                const task = document.getElementById('task').value.trim();
+                const format = document.getElementById('format').value;
 
-                if (!data.name || !data.contact || !data.task) {
-                    formNote.textContent = 'Пожалуйста, заполните имя, контакт и задачу.';
+                // Дополнительная проверка на случай, если браузерная валидация была обойдена
+                if (!name || !contact || !task) {
+                    formNote.textContent = 'Пожалуйста, заполните все обязательные поля.';
                     formNote.className = 'text-xs text-pink-400 text-center mt-3';
                     return;
                 }
@@ -587,39 +591,42 @@ permalink: /main/
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Отправляю…';
 
+                const data = {
+                    name: name,
+                    contact: contact,
+                    task: task,
+                    format: format,
+                    page: window.location.href
+                };
+
                 try {
-                    // no-cors + text/plain => простой запрос без preflight.
-                    // Ответ непрозрачный (opaque), но doPost на сервере выполнится и письмо уйдёт.
                     await fetch(GAS_URL, {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify(data)
                     });
-                    showSuccess(data.name);
+                    
+                    // Успешная отправка: заменяем форму на сообщение
+                    const formContainer = document.getElementById('form-container');
+                    if (formContainer) {
+                        formContainer.innerHTML = `
+                            <div class="glass rounded-2xl p-10 border border-green-500/30 shadow-2xl shadow-green-500/10 text-center">
+                                <div class="w-20 h-20 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center text-4xl mx-auto mb-6 animate-float">✓</div>
+                                <h3 class="text-3xl font-display font-bold text-white mb-3">${name}, заявка принята!</h3>
+                                <p class="text-gray-300 text-lg mb-6">Я уже вижу её в почте. Изучу ваш запрос и отвечу в течение 24 часов, чтобы назначить время созвона.</p>
+                                <a href="https://t.me/dmitriynolfin" class="inline-block bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-full font-semibold transition text-sm">Написать мне в Telegram</a>
+                            </div>`;
+                    }
                 } catch (err) {
-                    // Сетевая ошибка (нет интернета / недоступен Google) — не теряем лида:
+                    console.error('Ошибка отправки формы:', err);
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Записаться на бесплатный разбор';
-                    formNote.innerHTML = 'Не удалось отправить заявку. Напишите мне напрямую: ' +
-                        '<a href="https://t.me/dmitriynolfin" class="text-primary-400 underline">@dmitriynolfin</a> или ' +
-                        '<a href="mailto:dmitriynolfin@gmail.com" class="text-primary-400 underline">почту</a>.';
+                    formNote.innerHTML = 'Не удалось отправить заявку. Напишите мне напрямую: <a href="https://t.me/dmitriynolfin" class="text-primary-400 underline">@dmitriynolfin</a> или <a href="mailto:dmitriynolfin@gmail.com" class="text-primary-400 underline">почту</a>.';
                     formNote.className = 'text-xs text-yellow-400 text-center mt-3';
                 }
             });
-
-            function showSuccess(name) {
-                const c = document.getElementById('form-container');
-                if (!c) return;
-                c.innerHTML = `
-                    <div class="glass rounded-2xl p-10 border border-green-500/30 shadow-2xl shadow-green-500/10 text-center">
-                        <div class="w-20 h-20 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center text-4xl mx-auto mb-6 animate-float">✓</div>
-                        <h3 class="text-3xl font-display font-bold text-white mb-3">${name}, заявка принята!</h3>
-                        <p class="text-gray-300 text-lg mb-6">Я уже вижу её в почте. Изучу ваш запрос и отвечу в течение 24 часов, чтобы назначить время созвона.</p>
-                        <a href="https://t.me/dmitriynolfin" class="inline-block bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-full font-semibold transition text-sm">Написать мне в Telegram</a>
-                    </div>`;
-            }
-        })();
+        });
 
         // Мобильное меню
         const menuBtn = document.getElementById('menuBtn');
